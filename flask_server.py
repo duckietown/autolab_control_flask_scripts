@@ -14,13 +14,23 @@ app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
+@app.route('/lights_off', methods=['GET'])
+@cross_origin()
+def lights_off():
+    return jsonify({'success': True})
+
+@app.route('/lights_on', methods=['GET'])
+@cross_origin()
+def lights_on():
+    return jsonify({'success': True})
+
 @app.route('/ping', methods=['GET'])
 @cross_origin()
 def ping_hosts():
     host, ping = ping_all_main()
     return jsonify({'hostname': host, 'ping': ping})
 
-@app.route('/usb_space_checks', methods=['GET'])
+@app.route('/logging_checks', methods=['GET'])
 @cross_origin()
 def logging_checker():
     host, check = logging_checks_main()
