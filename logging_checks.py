@@ -21,7 +21,6 @@ def check_device(device):
                             "\'' % (device)
     try:
         res = subprocess.check_output(cmd, shell=True)
-        print(res)
         res = res.rstrip().decode("utf-8")
 
         if res == 'Again':
@@ -57,5 +56,7 @@ def check_all_devices(device_list):
 
 def logging_checks_main():
     device_list = get_device_list('device_list.txt')
-    print('Running checks:')
+    return device_list, check_all_devices(device_list)
+
+def logging_checks_with_list(device_list):
     return device_list, check_all_devices(device_list)

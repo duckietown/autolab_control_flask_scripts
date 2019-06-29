@@ -24,3 +24,6 @@ def ping_all_devices(device_list):
 def ping_all_main():
     device_list = get_device_list('device_list.txt')
     return device_list, ping_all_devices(device_list)
+
+def ping_all_with_list(device_list):
+    return device_list, ping_all_devices(device_list)
