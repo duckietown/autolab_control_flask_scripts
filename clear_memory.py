@@ -26,3 +26,6 @@ def free_space_all_devices(device_list):
 def clear_memory_main():
     device_list = get_device_list('device_list.txt')
     return device_list, free_space_all_devices(device_list)
+
+def clear_memory_with_list(device_list):
+    return device_list, free_space_all_devices(device_list)

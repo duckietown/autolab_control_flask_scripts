@@ -45,3 +45,6 @@ def check_space_all_devices(device_list):
 def space_checks_main():
     device_list = get_device_list('device_list.txt')
     return device_list, check_space_all_devices(device_list)
+
+def space_checks_with_list(device_list):
+    return device_list, check_space_all_devices(device_list)
