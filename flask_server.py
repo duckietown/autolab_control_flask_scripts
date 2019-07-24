@@ -6,9 +6,12 @@ from space_checks import space_checks_main, space_checks_with_list
 from start_logging import start_logging_main, start_logging_with_list
 from stop_logging import stop_logging_main, stop_logging_with_list
 from clear_memory import clear_memory_main, clear_memory_with_list
+from start_active_bots import start_active_bots_with_list
+from start_passive_bots import start_passive_bots_with_list
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS, cross_origin
+import requests, json
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -90,5 +93,31 @@ def memory_clearer():
         host, check = clear_memory_with_list(data)
         return jsonify({'hostname': host, 'clear_memory': check})
 
+@app.route('/start_active_bots', methods=['POST'])
+@cross_origin()
+def start_active():
+    list=request.get_json()["list"]
+    container=request.get_json()["container"]
+    duration=request.get_json()["duration"]
+    host, check = start_active_bots_with_list(list, container, duration)
+    return jsonify({'hostname': host, 'container': check})
+
+@app.route('/start_passive_bots', methods=['POST'])
+@cross_origin()
+def start_passive():
+    list=request.get_json()["list"]
+    container=request.get_json()["container"]
+    host, check = start_passive_bots_with_list(list, container)
+    return jsonify({'hostname': host, 'container': check})
+
+@app.route('/toggle_switch', methods=['GET'])
+@cross_origin()
+def toggle_switch():
+    url = 'http://172.31.168.15/report'
+    response = requests.request('GET', url)
+    response = response.json()
+    print(response)
+    return jsonify(response)
+
 if __name__ == '__main__':
-    app.run(host= '0.0.0.0')
+    app.run(host= '0.0.0.0', port=5050)
