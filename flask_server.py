@@ -1,5 +1,9 @@
 #!flask/bin/python
 import os, subprocess
+from flask import Flask, jsonify, request
+from flask_cors import CORS, cross_origin
+import requests, json
+
 from ping_all import ping_all_main, ping_all_with_list
 from logging_checks import logging_checks_main, logging_checks_with_list
 from space_checks import space_checks_main, space_checks_with_list
@@ -8,10 +12,7 @@ from stop_logging import stop_logging_main, stop_logging_with_list
 from clear_memory import clear_memory_main, clear_memory_with_list
 from start_active_bots import start_active_bots_with_list
 from start_passive_bots import start_passive_bots_with_list
-
-from flask import Flask, jsonify, request
-from flask_cors import CORS, cross_origin
-import requests, json
+from submission_server import request_job, upload_job
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -96,18 +97,18 @@ def memory_clearer():
 @app.route('/start_active_bots', methods=['POST'])
 @cross_origin()
 def start_active():
-    list=request.get_json()["list"]
+    bot_list=request.get_json()["list"]
     container=request.get_json()["container"]
     duration=request.get_json()["duration"]
-    host, check = start_active_bots_with_list(list, container, duration)
+    host, check = start_active_bots_with_list(bot_list, container, duration)
     return jsonify({'hostname': host, 'container': check})
 
 @app.route('/start_passive_bots', methods=['POST'])
 @cross_origin()
 def start_passive():
-    list=request.get_json()["list"]
-    container=request.get_json()["container"]
-    host, check = start_passive_bots_with_list(list, container)
+    bot_list=request.get_json()["list"]
+    demo=request.get_json()["demo"]
+    host, check = start_passive_bots_with_list(bot_list, demo)
     return jsonify({'hostname': host, 'container': check})
 
 @app.route('/toggle_switch', methods=['GET'])
@@ -118,6 +119,26 @@ def toggle_switch():
     response = response.json()
     print(response)
     return jsonify(response)
+
+# @app.route('/request_submission', methods=['POST'])
+# @cross_origin()
+# def submission_request():
+#     token = request.get_json()["token"]
+#     endpoint = request.get_json()["endpoint"]
+#     url = request.get_json()["url"]
+#     response = request_job(token, endpoint, url)
+#     print(response)
+#     return jsonify(response)
+
+# @app.route('/upload_data', methods=['POST'])
+# @cross_origin()
+# def data_upload():
+#     token = request.get_json()["token"]
+#     endpoint = request.get_json()["endpoint"]
+#     url = request.get_json()["url"]
+#     response = upload_job(token, endpoint, url)
+#     print(response)
+#     return jsonify(response)
 
 if __name__ == '__main__':
     app.run(host= '0.0.0.0', port=5050)
