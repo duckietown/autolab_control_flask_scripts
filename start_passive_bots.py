@@ -1,5 +1,4 @@
-import multiprocessing
-import subprocess
+import subprocess,multiprocessing
 from typing import List
 import time
 
@@ -55,5 +54,3 @@ def start_passive_bots_with_list(device_list, passive_demo):
     global demo_name
     demo_name = passive_demo
     return device_list, start_all_devices(device_list)
-
-print(start_passive_bots_with_list({"autobot03"}, "indefinite_navigation"))

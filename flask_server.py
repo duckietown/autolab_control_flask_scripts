@@ -120,25 +120,25 @@ def toggle_switch():
     print(response)
     return jsonify(response)
 
-# @app.route('/request_submission', methods=['POST'])
-# @cross_origin()
-# def submission_request():
-#     token = request.get_json()["token"]
-#     endpoint = request.get_json()["endpoint"]
-#     url = request.get_json()["url"]
-#     response = request_job(token, endpoint, url)
-#     print(response)
-#     return jsonify(response)
+@app.route('/request_submission', methods=['POST'])
+@cross_origin()
+def submission_request():
+    token = request.get_json()["token"]
+    endpoint = request.get_json()["endpoint"]
+    url = request.get_json()["url"]
+    response = request_job(token, endpoint, url)
+    print(response)
+    return jsonify(response)
 
-# @app.route('/upload_data', methods=['POST'])
-# @cross_origin()
-# def data_upload():
-#     token = request.get_json()["token"]
-#     endpoint = request.get_json()["endpoint"]
-#     url = request.get_json()["url"]
-#     response = upload_job(token, endpoint, url)
-#     print(response)
-#     return jsonify(response)
+@app.route('/upload_data', methods=['POST'])
+@cross_origin()
+def data_upload():
+    token = request.get_json()["token"]
+    endpoint = request.get_json()["endpoint"]
+    url = request.get_json()["url"]
+    response = upload_job(token, endpoint, url)
+    print(response)
+    return jsonify(response)
 
 if __name__ == '__main__':
     app.run(host= '0.0.0.0', port=5050)

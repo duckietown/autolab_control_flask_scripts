@@ -1,5 +1,4 @@
-import multiprocessing
-import subprocess
+import subprocess,multiprocessing
 from typing import List
 import time
 
@@ -49,5 +48,3 @@ def start_active_bots_with_list(device_list, submission_container, submission_du
     container = submission_container
     duration = submission_duration
     return device_list, start_all_devices(device_list)
-
-print(start_active_bots_with_list({"autobot03"}, "localhost:5000/webbe035/aido-submissions:2019_07_23_15_41_34", 20))
