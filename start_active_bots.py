@@ -17,18 +17,8 @@ def start_device(device):
         time.sleep(10)
         print(device+ ": Starting the submission: "+container)
         cmd = "dts duckiebot evaluate --duckiebot_name %s --image %s --duration %s" % (device, container, duration)
-        res = subprocess.Popen(cmd, shell=True, executable="/bin/bash")
-        time.sleep(10)
-        cmd = 'docker inspect -f \'{{.State.Running}}\' agent'
-        res = subprocess.check_output(cmd, shell=True)
-        print("here 2")
-        res = res.rstrip().decode("utf-8")
-        print(res)
-
-        if res == "true":
-            return "Started evaluation"
-        else:
-            return "Couldn't start"
+        subprocess.Popen(cmd, shell=True, executable="/bin/bash")
+        return "Started evaluation"
 
     except subprocess.CalledProcessError:
         return "Error"
@@ -47,4 +37,5 @@ def start_active_bots_with_list(device_list, submission_container, submission_du
     global duration
     container = submission_container
     duration = submission_duration
-    return device_list, start_all_devices(device_list)
+    outcome = start_all_devices(device_list)
+    return device_list, outcome

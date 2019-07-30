@@ -99,7 +99,7 @@ def memory_clearer():
 def start_active():
     bot_list=request.get_json()["list"]
     container=request.get_json()["container"]
-    duration=request.get_json()["duration"]
+    duration=int(request.get_json()["duration"])
     host, check = start_active_bots_with_list(bot_list, container, duration)
     return jsonify({'hostname': host, 'container': check})
 
@@ -117,7 +117,6 @@ def toggle_switch():
     url = 'http://172.31.168.15/report'
     response = requests.request('GET', url)
     response = response.json()
-    print(response)
     return jsonify(response)
 
 @app.route('/request_submission', methods=['POST'])
@@ -127,7 +126,6 @@ def submission_request():
     endpoint = request.get_json()["endpoint"]
     url = request.get_json()["url"]
     response = request_job(token, endpoint, url)
-    print(response)
     return jsonify(response)
 
 @app.route('/upload_data', methods=['POST'])
@@ -137,7 +135,6 @@ def data_upload():
     endpoint = request.get_json()["endpoint"]
     url = request.get_json()["url"]
     response = upload_job(token, endpoint, url)
-    print(response)
     return jsonify(response)
 
 if __name__ == '__main__':
