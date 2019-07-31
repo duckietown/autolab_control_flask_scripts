@@ -9,13 +9,9 @@ demo_name = ""
 def start_device(device):
     global demo_name
     try:
-        cmd = "docker -H %s.local restart duckiebot-interface" % device
-        subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
-        print(device+ ": Restarting the duckiebot-interface")
-        time.sleep(10)
+        print(device+ ": Starting the demo: "+demo_name)
         cmd = "dts duckiebot demo --demo_name %s --duckiebot %s --package_name duckietown_demos" % (demo_name, device)
         res = subprocess.check_output(cmd, shell=True, executable="/bin/bash")
-        print(device+ ": Starting the demo: "+demo_name)
         time.sleep(10)
         count = 0
         while True and count<60:

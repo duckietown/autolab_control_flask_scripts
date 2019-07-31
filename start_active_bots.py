@@ -11,10 +11,6 @@ def start_device(device):
     global container
     global duration
     try:
-        cmd = "docker -H %s.local restart duckiebot-interface" % device
-        subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
-        print(device+ ": Restarting the duckiebot-interface")
-        time.sleep(10)
         print(device+ ": Starting the submission: "+container)
         cmd = "dts duckiebot evaluate --duckiebot_name %s --image %s --duration %s" % (device, container, duration)
         subprocess.Popen(cmd, shell=True, executable="/bin/bash")

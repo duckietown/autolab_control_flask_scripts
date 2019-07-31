@@ -13,6 +13,7 @@ from clear_memory import clear_memory_main, clear_memory_with_list
 from start_active_bots import start_active_bots_with_list
 from start_passive_bots import start_passive_bots_with_list
 from submission_server import request_job, upload_job
+from reset_duckiebot import reset_duckiebot_with_list
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -136,6 +137,13 @@ def data_upload():
     url = request.get_json()["url"]
     response = upload_job(token, endpoint, url)
     return jsonify(response)
+
+@app.route('/reset_duckiebot', methods=['POST'])
+@cross_origin()
+def duckiebot_reset():
+    bot_list=request.get_json()["list"]
+    host, outcome = reset_duckiebot_with_list(bot_list)
+    return jsonify({'hostname': host, 'outcome': outcome})
 
 if __name__ == '__main__':
     app.run(host= '0.0.0.0', port=5050)
