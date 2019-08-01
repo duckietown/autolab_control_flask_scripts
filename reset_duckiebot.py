@@ -13,6 +13,7 @@ def start_device(device):
         print(device+ ": Restarting the acquisition-bridge")
         cmd = "docker -H %s.local restart acquisition-bridge" % device
         subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
+        time.sleep(10)
         return "Duckiebot reset"
 
     except subprocess.CalledProcessError:
