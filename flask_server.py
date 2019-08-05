@@ -14,6 +14,7 @@ from start_active_bots import start_active_bots_with_list
 from start_passive_bots import start_passive_bots_with_list
 from submission_server import request_job, upload_job
 from reset_duckiebot import reset_duckiebot_with_list
+from create_log import generate_log_file
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -144,6 +145,14 @@ def duckiebot_reset():
     bot_list=request.get_json()["list"]
     host, outcome = reset_duckiebot_with_list(bot_list)
     return jsonify({'hostname': host, 'outcome': outcome})
+
+@app.route('/create_log', methods=['POST'])
+@cross_origin()
+def log_creator():
+    content=request.get_json()["content"]
+    filename=request.get_json()["filename"]
+    outcome = generate_log_file(content,filename)
+    return jsonify({'outcome': outcome})
 
 if __name__ == '__main__':
     app.run(host= '0.0.0.0', port=5050)

@@ -10,7 +10,7 @@ def ping_device(device):
         tmp2= tmp[tmp.find('/')+1:]
         tmp3= tmp2[:tmp2.find('/')]
         return tmp3
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError:
         return 0
 
 def ping_all_devices(device_list):
