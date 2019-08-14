@@ -43,4 +43,11 @@ watchtower51
 watchtower52
 watchtower53
 watchtower54
+autobot01
+autobot02
 autobot03
+autobot04
+autobot05
+autobot06
+autobot07
+autobot08
