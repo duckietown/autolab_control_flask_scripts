@@ -29,5 +29,3 @@ def docker_maintenance_with_list(cmd, device_list):
     global operation
     operation = cmd
     return device_list, docker_maintenance_all_devices(device_list)
-
-print(docker_maintenance_with_list("restart acquisition-bridge",["watchtower01"]))
