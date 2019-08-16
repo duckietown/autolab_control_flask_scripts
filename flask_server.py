@@ -138,8 +138,8 @@ def apriltag_processor():
 def docker_maintainer():
     command=request.get_json()["command"]
     device_list=request.get_json()["device_list"]
-    outcome = docker_maintenance_with_list(command, device_list)
-    return jsonify({'outcome': outcome})
+    host, outcome = docker_maintenance_with_list(command, device_list)
+    return jsonify({'hostname': host, 'outcome': outcome})
 
 if __name__ == '__main__':
     app.run(host= '0.0.0.0', port=5050)
