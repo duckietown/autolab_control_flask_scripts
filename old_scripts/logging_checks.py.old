@@ -54,9 +54,6 @@ def check_all_devices(device_list):
     show_status(device_list, results)
     return results
 
-def logging_checks_main():
+def memory_check():
     device_list = get_device_list('device_list.txt')
-    return device_list, check_all_devices(device_list)
-
-def logging_checks_with_list(device_list):
     return device_list, check_all_devices(device_list)
