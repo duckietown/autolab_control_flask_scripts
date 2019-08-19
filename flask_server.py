@@ -112,9 +112,8 @@ def logging_starter():
     computer = request.get_json()["computer"]
     filename = request.get_json()["filename"]
     device_list = request.get_json()["device_list"]
-    submission_id = request.get_json()["submission_id"]
-    step_name = request.get_json()["step_name"]
-    outcome = start_logging(computer, filename, device_list, submission_id, step_name)
+    mount_folder = request.get_json()["mount_folder"]
+    outcome = start_logging(computer, filename, device_list, mount_folder)
     return jsonify({'outcome': outcome})
 
 # API call to stop logging after the submission terminated
@@ -129,12 +128,12 @@ def logging_stopper():
 @app.route('/start_bag_processing', methods=['POST'])
 @cross_origin()
 def apriltag_processor():
-    input_bag_path = request.get_json()["input_bag_path"]
-    output_bag_path = request.get_json()["output_bag_path"]
+    input_bag_name = request.get_json()["input_bag_name"]
+    output_bag_name = request.get_json()["output_bag_name"]
     mount_computer_side = request.get_json()["mount_computer_side"]
     mount_container_side = request.get_json()["mount_container_side"]
     outcome = start_bag_processing(
-        input_bag_path, output_bag_path, mount_computer_side, mount_container_side)
+        input_bag_name, output_bag_name, mount_computer_side, mount_container_side)
     return jsonify({'outcome': outcome})
 
 # API call to perform docker maintenance on multiple agents, i.e. restarting, stopping, ... containers

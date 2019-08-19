@@ -11,20 +11,20 @@ def start_device(device):
     try:
         print(device+ ": Starting the demo: "+demo_name)
         cmd = "dts duckiebot demo --demo_name %s --duckiebot %s --package_name duckietown_demos" % (demo_name, device)
-        res = subprocess.check_output(cmd, shell=True, executable="/bin/bash")
+        res = subprocess.Popen(cmd, shell=True, executable="/bin/bash")
         time.sleep(10)
         count = 0
         while True and count<60:
             try:
-                cmd = 'docker -H %s.local inspect -f \'{{.State.Running}}\' demo_indefinite_navigation' % (device)
+                cmd = 'docker -H %s.local inspect -f \'{{.State.Running}}\' demo_%s' % (device, demo_name)
                 res = subprocess.check_output(cmd, shell=True)
                 res = res.rstrip().decode("utf-8")
                 if res == "true":
                     print(device+ ": Try number "+str(count)+" was successfull, the demo is running")
                     time.sleep(30)
-                    cmd = 'docker -H %s.local exec -it demo_indefinite_navigation\
+                    cmd = 'docker -H %s.local exec -it demo_%s\
                          /bin/bash environment.sh rostopic pub /%s/joy_mapper_node/joystick_override duckietown_msgs/BoolStamped\
-                         "{header: {seq: 0, stamp: {secs: 0, nsecs: 0}, frame_id: \'\'}, data: false}"' % (device,device)
+                         "{header: {seq: 0, stamp: {secs: 0, nsecs: 0}, frame_id: \'\'}, data: false}"' % (device,demo_name,device)
                     res = subprocess.Popen(cmd, shell=True, executable="/bin/bash")
                     print(device+ ": Released joystick override")
                     return "Started demo"

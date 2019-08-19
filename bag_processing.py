@@ -2,8 +2,8 @@ import subprocess
 import rosbag
 
 
-def start_bag_processing(input_bag_path, output_bag_path, mount_computer_side, mount_container_side="/data"):
-    bag = rosbag.Bag(input_bag_path)
+def start_bag_processing(input_bag_name, output_bag_name, mount_computer_side, mount_container_side="/data"):
+    bag = rosbag.Bag(mount_computer_side +"/"+ input_bag_name)
     watchtowers = []
     autobots = []
     for topic, _, _ in bag.read_messages():
@@ -17,6 +17,7 @@ def start_bag_processing(input_bag_path, output_bag_path, mount_computer_side, m
                     autobots.append(part)
 
     bags_name = []
+    container_side_input = "%s/%s" % (mount_container_side, input_bag_name)
     for watchtower_id in watchtowers:
         processed_bag_name = "processed_%s.bag" % watchtower_id
         output_container = "%s/%s" % (
@@ -24,7 +25,7 @@ def start_bag_processing(input_bag_path, output_bag_path, mount_computer_side, m
         output_computer = "%s/%s" % (mount_computer_side, processed_bag_name)
         bags_name.append(output_computer)
         cmd = "docker-compose -f processor_compose.yaml run -v %s:%s -e ACQ_DEVICE_NAME=%s -e INPUT_BAG_PATH=%s -e OUTPUT_BAG_PATH=%s --name apriltagprocessor%s apriltag-processor" % (
-            mount_computer_side, mount_container_side, watchtower_id, input_bag_path, output_container, watchtower_id)
+            mount_computer_side, mount_container_side, watchtower_id, container_side_input, output_container, watchtower_id)
         try:
             res = subprocess.check_output(cmd, shell=True)
             return ("Success: %s" % res)
