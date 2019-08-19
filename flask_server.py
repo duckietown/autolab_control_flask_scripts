@@ -112,7 +112,9 @@ def logging_starter():
     computer = request.get_json()["computer"]
     filename = request.get_json()["filename"]
     device_list = request.get_json()["device_list"]
-    outcome = start_logging(computer, filename, device_list)
+    submission_id = request.get_json()["submission_id"]
+    step_name = request.get_json()["step_name"]
+    outcome = start_logging(computer, filename, device_list, submission_id, step_name)
     return jsonify({'outcome': outcome})
 
 # API call to stop logging after the submission terminated
@@ -131,7 +133,7 @@ def apriltag_processor():
     output_bag_path = request.get_json()["output_bag_path"]
     mount_computer_side = request.get_json()["mount_computer_side"]
     mount_container_side = request.get_json()["mount_container_side"]
-    outcome = start_apriltag_processing(
+    outcome = start_bag_processing(
         input_bag_path, output_bag_path, mount_computer_side, mount_container_side)
     return jsonify({'outcome': outcome})
 
