@@ -13,7 +13,7 @@ from submission_server import request_job, upload_job
 from reset_duckiebot import reset_duckiebot_with_list
 from create_log import generate_log_file
 from logging_utils import start_logging, stop_logging
-from apriltag_processing import start_apriltag_processing
+from bag_processing import start_bag_processing
 from space_check import check_space_for_logging
 from docker_maintenance import docker_maintenance_with_list
 
@@ -102,9 +102,7 @@ def log_creator():
 @app.route('/space_check', methods=['POST'])
 @cross_origin()
 def space_checker():
-    computer = request.get_json()["computer"]
-    account = request.get_json()["account"]
-    outcome = check_space_for_logging(account, computer)
+    outcome = check_space_for_logging()
     return jsonify({'outcome': outcome})
 
 # API call to start the logging container (Rosbag) and log all necessary frames
@@ -126,7 +124,7 @@ def logging_stopper():
     return jsonify({'outcome': outcome})
 
 # API call to start the apriltag posprocessing from the gathered Rosbag/images
-@app.route('/start_apriltag_processing', methods=['POST'])
+@app.route('/start_bag_processing', methods=['POST'])
 @cross_origin()
 def apriltag_processor():
     input_bag_path = request.get_json()["input_bag_path"]
