@@ -8,3 +8,10 @@ services:
         image: duckietown/wheel-odometry-processor:master19-amd64
         environment:
             ACQ_ROS_MASTER_URI_SERVER_IP: 172.31.168.115
+    localization:
+        image: duckietown/cslam-graphoptimizer:master19-amd64
+        network_mode: "host"
+        environment:
+            ROS_HOSTNAME: 172.31.168.115
+            ROS_IP: 172.31.168.115
+            ROS_MASTER : duckietown3
