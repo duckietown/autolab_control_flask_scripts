@@ -3,7 +3,7 @@ import rosbag
 
 
 def start_bag_processing(input_bag_name, output_bag_name, mount_computer_side, mount_container_side="/data"):
-    bag = rosbag.Bag(mount_computer_side +"/"+ input_bag_name)
+    bag = rosbag.Bag(mount_computer_side +"/"+ input_bag_name + ".bag")
     watchtowers = []
     autobots = []
     for topic, _, _ in bag.read_messages():
@@ -39,14 +39,14 @@ def start_bag_processing(input_bag_name, output_bag_name, mount_computer_side, m
         output_computer = "%s/%s" % (mount_computer_side, processed_bag_name)
         bags_name.append(output_computer)
         cmd = "docker-compose -f processor_compose.yaml run -v %s:%s -e ACQ_DEVICE_NAME=%s -e INPUT_BAG_PATH=%s -e OUTPUT_BAG_PATH=%s --name wheelodometryprocessor%s odometry-processor" % (
-            mount_computer_side, mount_container_side, autobot, input_bag_path, output_container, autobot)
+            mount_computer_side, mount_container_side, autobot, container_side_input, output_container, autobot)
         try:
             res = subprocess.check_output(cmd, shell=True)
             return ("Success: %s" % res)
         except subprocess.CalledProcessError as e:
             return ("Error: %s" % e)
 
-    merge_bags(bags_name, output_bag_path)
+    merge_bags(bags_name, mount_computer_side +"/"+ output_bag_name + ".bag")
 
     def merge_bags(bags_name, output_bag_path):
         output_bag = rosbag.Bag(output_bag_path, 'w')
