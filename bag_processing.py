@@ -18,6 +18,8 @@ def start_bag_processing(input_bag_name, output_bag_name, mount_computer_side, m
 
     bags_name = []
     container_side_input = "%s/%s" % (mount_container_side, input_bag_name)
+    print(watchtowers)
+    print(autobots)
     for watchtower_id in watchtowers:
         processed_bag_name = "processed_%s.bag" % watchtower_id
         output_container = "%s/%s" % (
