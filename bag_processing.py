@@ -2,15 +2,19 @@ import subprocess
 import rosbag
 
 
-def start_apriltag_processing(input_bag_path, output_bag_path, mount_computer_side, mount_container_side="/data"):
+def start_bag_processing(input_bag_path, output_bag_path, mount_computer_side, mount_container_side="/data"):
     bag = rosbag.Bag(input_bag_path)
     watchtowers = []
+    autobots = []
     for topic, _, _ in bag.read_messages():
         topic_parts = topic.split("/")
         for part in topic_parts:
             if "watchtower" in part:
                 if part not in watchtowers:
                     watchtowers.append(part)
+            if "autobot" in part or "duckiebot" in part:
+                if part not in autobots:
+                    autobots.append(part)
 
     bags_name = []
     for watchtower_id in watchtowers:
@@ -21,6 +25,20 @@ def start_apriltag_processing(input_bag_path, output_bag_path, mount_computer_si
         bags_name.append(output_computer)
         cmd = "docker-compose -f apriltag_processor_compose.yaml run -v %s:%s -e ACQ_DEVICE_NAME=%s -e INPUT_BAG_PATH=%s -e OUTPUT_BAG_PATH=%s --name apriltagprocessor%s apriltag-processor" % (
             mount_computer_side, mount_container_side, watchtower_id, input_bag_path, output_container, watchtower_id)
+        try:
+            res = subprocess.check_output(cmd, shell=True)
+            return ("Success: %s" % res)
+        except subprocess.CalledProcessError as e:
+            return ("Error: %s" % e)
+
+    for autobot in autobots:
+        processed_bag_name = "processed_%s.bag" % autobot
+        output_container = "%s/%s" % (
+            mount_container_side, processed_bag_name)
+        output_computer = "%s/%s" % (mount_computer_side, processed_bag_name)
+        bags_name.append(output_computer)
+        cmd = "docker-compose -f wheel_odometry_processor_compose.yaml run -v %s:%s -e ACQ_DEVICE_NAME=%s -e INPUT_BAG_PATH=%s -e OUTPUT_BAG_PATH=%s --name wheelodometryprocessor%s odometry-processor" % (
+            mount_computer_side, mount_container_side, autobot, input_bag_path, output_container, autobot)
         try:
             res = subprocess.check_output(cmd, shell=True)
             return ("Success: %s" % res)
