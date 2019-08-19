@@ -23,7 +23,7 @@ def start_bag_processing(input_bag_path, output_bag_path, mount_computer_side, m
             mount_container_side, processed_bag_name)
         output_computer = "%s/%s" % (mount_computer_side, processed_bag_name)
         bags_name.append(output_computer)
-        cmd = "docker-compose -f apriltag_processor_compose.yaml run -v %s:%s -e ACQ_DEVICE_NAME=%s -e INPUT_BAG_PATH=%s -e OUTPUT_BAG_PATH=%s --name apriltagprocessor%s apriltag-processor" % (
+        cmd = "docker-compose -f processor_compose.yaml run -v %s:%s -e ACQ_DEVICE_NAME=%s -e INPUT_BAG_PATH=%s -e OUTPUT_BAG_PATH=%s --name apriltagprocessor%s apriltag-processor" % (
             mount_computer_side, mount_container_side, watchtower_id, input_bag_path, output_container, watchtower_id)
         try:
             res = subprocess.check_output(cmd, shell=True)
@@ -37,7 +37,7 @@ def start_bag_processing(input_bag_path, output_bag_path, mount_computer_side, m
             mount_container_side, processed_bag_name)
         output_computer = "%s/%s" % (mount_computer_side, processed_bag_name)
         bags_name.append(output_computer)
-        cmd = "docker-compose -f wheel_odometry_processor_compose.yaml run -v %s:%s -e ACQ_DEVICE_NAME=%s -e INPUT_BAG_PATH=%s -e OUTPUT_BAG_PATH=%s --name wheelodometryprocessor%s odometry-processor" % (
+        cmd = "docker-compose -f processor_compose.yaml run -v %s:%s -e ACQ_DEVICE_NAME=%s -e INPUT_BAG_PATH=%s -e OUTPUT_BAG_PATH=%s --name wheelodometryprocessor%s odometry-processor" % (
             mount_computer_side, mount_container_side, autobot, input_bag_path, output_container, autobot)
         try:
             res = subprocess.check_output(cmd, shell=True)
