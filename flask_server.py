@@ -17,6 +17,7 @@ from bag_processing import start_bag_processing
 from space_check import check_space_for_logging
 from docker_maintenance import docker_maintenance_with_list
 from localization import run_localization
+from stop_passive_bots import stop_passive_bots_with_list
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -157,6 +158,15 @@ def process_localization():
     outcome = run_localization(
         input_bag_name, output_dir, mount_computer_side, mount_container_side)
     return jsonify({'outcome': outcome})
+
+# API call to stop demos on the duckiebots (passive bots)
+@app.route('/stop_passive_bots', methods=['POST'])
+@cross_origin()
+def stop_passive():
+    bot_list = request.get_json()["list"]
+    demo = request.get_json()["demo"]
+    host, check = stop_passive_bots_with_list(bot_list, demo)
+    return jsonify({'hostname': host, 'container': check})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5050)
