@@ -55,6 +55,7 @@ def start_bag_processing(input_bag_name, output_bag_name, mount_computer_side, m
             'bind': mount_container_side, 'mode': 'rw'}}
         name = "apriltagprocessor%s" % watchtower_id
         try:
+            client.prune()
             container = client.containers.run(
                 image="duckietown/apriltag-processor:master19-amd64", auto_remove=True, detach=True, environment=env, volumes=volume, name=name)
             print("Success: ")
