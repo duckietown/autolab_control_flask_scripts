@@ -1,9 +1,23 @@
 import subprocess
 import rosbag
+import time
+import docker
+
+
+def merge_bags(bags_name, output_bag_path):
+    # output_bag = rosbag.Bag(output_bag_path, 'w')
+    # for bag_name in bags_name:
+    #     bag = rosbag.Bag(bag_name)
+    #     for topic, message, timestamp in bag.read_messages():
+    #         output_bag.write(topic, message, timestamp)
+    #     bag.close()
+    # output_bag.close()
+    # print("finished with merging the bags")
+    return ("Success")
 
 
 def start_bag_processing(input_bag_name, output_bag_name, mount_computer_side, mount_container_side="/data"):
-    bag = rosbag.Bag(mount_computer_side +"/"+ input_bag_name + ".bag")
+    bag = rosbag.Bag(mount_computer_side + "/" + input_bag_name + ".bag")
     watchtowers = []
     autobots = []
     for topic, _, _ in bag.read_messages():
@@ -15,7 +29,7 @@ def start_bag_processing(input_bag_name, output_bag_name, mount_computer_side, m
             if "autobot" in part or "duckiebot" in part:
                 if part not in autobots:
                     autobots.append(part)
-
+    client = docker.from_env()
     bags_name = []
     container_side_input = "%s/%s" % (mount_container_side, input_bag_name)
     print(watchtowers)
@@ -26,35 +40,50 @@ def start_bag_processing(input_bag_name, output_bag_name, mount_computer_side, m
             mount_container_side, processed_bag_name)
         output_computer = "%s/%s" % (mount_computer_side, processed_bag_name)
         bags_name.append(output_computer)
-        cmd = "docker-compose -f processor_compose.yaml run -v %s:%s -e ACQ_DEVICE_NAME=%s -e INPUT_BAG_PATH=%s -e OUTPUT_BAG_PATH=%s --name apriltagprocessor%s apriltag-processor" % (
-            mount_computer_side, mount_container_side, watchtower_id, container_side_input, output_container, watchtower_id)
+        # cmd = "docker rm -f apriltagprocessor%s || echo 'balabla' && docker-compose -f processor_compose.yaml run -v %s:%s -e ACQ_DEVICE_NAME=%s -e INPUT_BAG_PATH=%s -e OUTPUT_BAG_PATH=%s --rm --name apriltagprocessor%s apriltag-processor" % (
+        #     watchtower_id, mount_computer_side, mount_container_side, watchtower_id, container_side_input, output_container, watchtower_id)
+        # print(cmd)
+        # cmd = ""
+        # for i in range(20):
+        #     cmd = cmd + "sleep %d; echo %d;" % (i, i)
+        env = []
+        env.append("ACQ_DEVICE_NAME=%s" % watchtower_id)
+        env.append("INPUT_BAG_PATH=%s" % container_side_input)
+        env.append("OUTPUT_BAG_PATH=%s" % output_container)
+        env.append("ROS_MASTER_URI=http://172.31.168.115:11311")
+        volume = {mount_computer_side: {
+            'bind': mount_container_side, 'mode': 'rw'}}
+        name = "apriltagprocessor%s" % watchtower_id
         try:
-            res = subprocess.check_output(cmd, shell=True)
-            return ("Success: %s" % res)
+            container = client.containers.run(
+                image="duckietown/apriltag-processor:master19-amd64", auto_remove=True, detach=True, environment=env, volumes=volume, name=name)
+            print("Success: ")
+            print(container.status)
+            while container.status == "running":
+                container.reload()
+                time.sleep(1)
         except subprocess.CalledProcessError as e:
             return ("Error: %s" % e)
 
+        print("finished with %s" % watchtower_id)
+
     for autobot in autobots:
+        print("processing %s" % autobot)
         processed_bag_name = "processed_%s.bag" % autobot
         output_container = "%s/%s" % (
             mount_container_side, processed_bag_name)
         output_computer = "%s/%s" % (mount_computer_side, processed_bag_name)
         bags_name.append(output_computer)
-        cmd = "docker-compose -f processor_compose.yaml run -v %s:%s -e ACQ_DEVICE_NAME=%s -e INPUT_BAG_PATH=%s -e OUTPUT_BAG_PATH=%s --name wheelodometryprocessor%s odometry-processor" % (
-            mount_computer_side, mount_container_side, autobot, container_side_input, output_container, autobot)
+        # cmd = "docker rm -f wheelodometryprocessor%s; docker-compose -f processor_compose.yaml run -v %s:%s -e ACQ_DEVICE_NAME=%s -e INPUT_BAG_PATH=%s -e OUTPUT_BAG_PATH=%s --rm --name wheelodometryprocessor%s odometry-processor" % (
+        #     autobot, mount_computer_side, mount_container_side, autobot, container_side_input, output_container, autobot)
+        cmd = "docker rm -f apriltagprocessor%s || echo 'blabla'; docker run hello-world " % watchtower_id
+
         try:
             res = subprocess.check_output(cmd, shell=True)
-            return ("Success: %s" % res)
+            print(str("Success: %s" % res))
         except subprocess.CalledProcessError as e:
+            print("Error: %s" % e)
             return ("Error: %s" % e)
 
-    merge_bags(bags_name, mount_computer_side +"/"+ output_bag_name + ".bag")
-
-    def merge_bags(bags_name, output_bag_path):
-        output_bag = rosbag.Bag(output_bag_path, 'w')
-        for bag_name in bags_name:
-            bag = rosbag.Bag(bag_name)
-            for topic, message, timestamp in bag.read_messages():
-                output_bag.write(topic, message, timestamp)
-            bag.close()
-        output_bag.close()
+    print("now passing to merging the bags")
+    return merge_bags(bags_name, mount_computer_side + "/" + output_bag_name + ".bag")
