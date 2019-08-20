@@ -60,12 +60,14 @@ def start_bag_processing(input_bag_name, output_bag_name, mount_computer_side, m
         try:
             client.containers.prune()
             container = client.containers.run(
-                image="duckietown/apriltag-processor:master19-amd64", detach=True, environment=env, volumes=volume, name=name)
+                image="duckietown/apriltag-processor:master19-amd64", network="host", detach=True, environment=env, volumes=volume, name=name)
             print("Success: ")
             print(container.status)
             while container.status == "running" or container.status == "created":
                 try:
                     container.reload()
+                    # print(container.logs())
+
                     time.sleep(1)
                 except:
                     break
