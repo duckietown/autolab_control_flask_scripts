@@ -16,6 +16,7 @@ from logging_utils import start_logging, stop_logging
 from bag_processing import start_bag_processing
 from space_check import check_space_for_logging
 from docker_maintenance import docker_maintenance_with_list
+from localization import run_localization
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -145,6 +146,17 @@ def docker_maintainer():
     host, outcome = docker_maintenance_with_list(command, device_list)
     return jsonify({'hostname': host, 'outcome': outcome})
 
+# API call to process localization
+@app.route('/process_localization', methods=['POST'])
+@cross_origin()
+def process_localization():
+    input_bag_name = request.get_json()["input_bag_name"]
+    output_dir = request.get_json()["output_dir"]
+    mount_computer_side = request.get_json()["mount_computer_side"]
+    mount_container_side = request.get_json()["mount_container_side"]
+    outcome = run_localization(
+        input_bag_name, output_dir, mount_computer_side, mount_container_side)
+    return jsonify({'outcome': outcome})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5050)
