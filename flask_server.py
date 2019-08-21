@@ -16,7 +16,7 @@ from logging_utils import start_logging, stop_logging
 from bag_processing import start_bag_processing, check_bag_processing
 from space_check import check_space_for_logging
 from docker_maintenance import docker_maintenance_with_list
-from localization import run_localization
+from localization import run_localization, check_localization
 from stop_passive_bots import stop_passive_bots_with_list
 
 app = Flask(__name__)
@@ -138,7 +138,7 @@ def apriltag_processor():
         input_bag_name, output_bag_name, mount_computer_side, mount_container_side)
     return jsonify({'outcome': outcome})
 
-# API call to start the apriltag posprocessing from the gathered Rosbag/images
+# API call to check the apriltag posprocessing from the gathered Rosbag/images
 @app.route('/check_bag_processing', methods=['POST'])
 @cross_origin()
 def check_apriltag_processor():
@@ -164,6 +164,13 @@ def process_localization():
     mount_container_side = request.get_json()["mount_container_side"]
     outcome = run_localization(
         input_bag_name, output_dir, mount_computer_side, mount_container_side)
+    return jsonify({'outcome': outcome})
+
+# API call to check localization progress
+@app.route('/check_localization', methods=['POST'])
+@cross_origin()
+def localization_checker():
+    outcome = check_localization()
     return jsonify({'outcome': outcome})
 
 # API call to stop demos on the duckiebots (passive bots)
