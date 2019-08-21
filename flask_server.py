@@ -13,7 +13,7 @@ from submission_server import request_job, upload_job
 from reset_duckiebot import reset_duckiebot_with_list
 from create_log import generate_log_file
 from logging_utils import start_logging, stop_logging
-from bag_processing import start_bag_processing
+from bag_processing import start_bag_processing, check_bag_processing
 from space_check import check_space_for_logging
 from docker_maintenance import docker_maintenance_with_list
 from localization import run_localization
@@ -136,6 +136,13 @@ def apriltag_processor():
     mount_container_side = request.get_json()["mount_container_side"]
     outcome = start_bag_processing(
         input_bag_name, output_bag_name, mount_computer_side, mount_container_side)
+    return jsonify({'outcome': outcome})
+
+# API call to start the apriltag posprocessing from the gathered Rosbag/images
+@app.route('/check_bag_processing', methods=['POST'])
+@cross_origin()
+def check_apriltag_processor():
+    outcome = check_bag_processing()
     return jsonify({'outcome': outcome})
 
 # API call to perform docker maintenance on multiple agents, i.e. restarting, stopping, ... containers
