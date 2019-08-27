@@ -18,7 +18,7 @@ import docker
 #     print("finished with merging the bags")
 #     return ("Success")
 
-name = "apriltagpostprocessor"
+name = "postprocessor"
 
 
 def start_bag_processing(input_bag_name, output_bag_name, mount_computer_side, mount_container_side="/data"):
@@ -26,17 +26,12 @@ def start_bag_processing(input_bag_name, output_bag_name, mount_computer_side, m
     bags_name = []
     container_side_input = "%s/%s" % (mount_container_side, input_bag_name)
 
-    processed_bag_name = "processed_apriltags.bag"
+    processed_bag_name = "processed_%s.bag" % input_bag_name
     output_container = "%s/%s" % (
         mount_container_side, processed_bag_name)
     output_computer = "%s/%s" % (mount_computer_side, processed_bag_name)
     bags_name.append(output_computer)
-    # cmd = "docker rm -f apriltagprocessor%s || echo 'balabla' && docker-compose -f processor_compose.yaml run -v %s:%s -e ACQ_DEVICE_NAME=%s -e INPUT_BAG_PATH=%s -e OUTPUT_BAG_PATH=%s --rm --name apriltagprocessor%s apriltag-processor" % (
-    #     watchtower_id, mount_computer_side, mount_container_side, watchtower_id, container_side_input, output_container, watchtower_id)
-    # print(cmd)
-    # cmd = ""
-    # for i in range(20):
-    #     cmd = cmd + "sleep %d; echo %d;" % (i, i)
+
     env = []
     env.append("INPUT_BAG_PATH=%s" % container_side_input)
     env.append("OUTPUT_BAG_PATH=%s" % output_container)
@@ -46,16 +41,19 @@ def start_bag_processing(input_bag_name, output_bag_name, mount_computer_side, m
     try:
         client.containers.prune()
         container = client.containers.run(
-            image="duckietown/apriltag-processor:master19-amd64", detach=True, auto_remove=True, environment=env, volumes=volume, name=name)
+            image="duckietown/post-processor:master19-amd64", detach=True, auto_remove=True, environment=env, volumes=volume, name=name)
         print("Success: ")
         # print(container)
         # print(container.status)
-        return("Success")
+        # logs = None
         # try:
         #     while container.status == "running" or container.status == "created":
+        #         logs = container.logs()
         #         time.sleep(0.1)
         # except:
         #     pass
+        # print logs
+        return("Success")
 
     except subprocess.CalledProcessError as e:
         return ("Error: %s" % e)
