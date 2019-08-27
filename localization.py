@@ -6,7 +6,6 @@ name = "localization-graphoptimizer"
 
 
 def run_localization(input_bag_path, output_dir, mount_computer_side, mount_container_side="/data"):
-    input_bag_path = "processed_apriltags"
     cmd = "docker-compose -f processor_compose.yaml run --rm -v %s:%s -e  ATMSGS_BAG=%s/%s.bag -e OUTPUT_DIR=%s --name %s localization" % (
         mount_computer_side, mount_container_side, mount_container_side, input_bag_path, output_dir, name)
     print(cmd)

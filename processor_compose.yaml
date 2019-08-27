@@ -1,14 +1,10 @@
 version: '3'
 services:
-    apriltag-processor:
-        image: duckietown/apriltag-processor:master19-amd64
+    post-processor:
+        image: duckietown/post-processor:master19-amd64
         environment:
             ROS_MASTER_URI: http://172.31.168.115:11311
-    odometry-processor:
-        image: duckietown/wheel-odometry-processor:master19-amd64
-        environment:
-            ROS_MASTER_URI: http://172.31.168.115:11311
-            ACQ_ROS_MASTER_URI_SERVER_IP: 172.31.168.115
+
     localization:
         image: duckietown/cslam-graphoptimizer:master19-amd64
         network_mode: "host"
