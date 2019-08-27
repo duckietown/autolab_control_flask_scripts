@@ -97,7 +97,8 @@ def duckiebot_reset():
 def log_creator():
     content = request.get_json()["content"]
     filename = request.get_json()["filename"]
-    outcome = generate_log_file(content, filename)
+    mount = request.get_json()["mount"]
+    outcome = generate_log_file(content, filename, mount)
     return jsonify({'outcome': outcome})
 
 # API call to check the available space on the server for logging
