@@ -18,6 +18,7 @@ from space_check import check_space_for_logging
 from docker_maintenance import docker_maintenance_with_list
 from localization import run_localization, check_localization
 from stop_passive_bots import stop_passive_bots_with_list
+from copy_autolab_roster import copy_roster_with_list
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -182,6 +183,16 @@ def stop_passive():
     demo = request.get_json()["demo"]
     host, check = stop_passive_bots_with_list(bot_list, demo)
     return jsonify({'hostname': host, 'container': check})
+
+# API call to stop demos on the duckiebots (passive bots)
+@app.route('/copy_roster', methods=['POST'])
+@cross_origin()
+def copy_roster():
+    bot_list = request.get_json()["list"]
+    mount = request.get_json()["mount"]
+    roster_location = request.get_json()["roster_location"]
+    outcome = copy_roster_with_list(bot_list, mount, roster_location)
+    return jsonify({'outcome': outcome})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5050)
