@@ -19,6 +19,7 @@ from docker_maintenance import docker_maintenance_with_list
 from localization import run_localization, check_localization
 from stop_passive_bots import stop_passive_bots_with_list
 from copy_autolab_roster import copy_roster_with_list
+from get_csv_trajectory import request_csv
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -184,7 +185,7 @@ def stop_passive():
     host, check = stop_passive_bots_with_list(bot_list, demo)
     return jsonify({'hostname': host, 'container': check})
 
-# API call to stop demos on the duckiebots (passive bots)
+# API call to copy the required roster files to the submission
 @app.route('/copy_roster', methods=['POST'])
 @cross_origin()
 def copy_roster():
@@ -193,6 +194,15 @@ def copy_roster():
     roster_location = request.get_json()["roster_location"]
     outcome = copy_roster_with_list(bot_list, mount, roster_location)
     return jsonify({'outcome': outcome})
+
+# API call request submission csv
+@app.route('/request_csv', methods=['POST'])
+@cross_origin()
+def csv_requester():
+    mount = request.get_json()["mount"]
+    duckiebot = request.get_json()["duckiebot"]
+    data = request_csv(mount, duckiebot)
+    return jsonify({'data': data})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5050)
