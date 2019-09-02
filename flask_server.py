@@ -20,7 +20,7 @@ from localization import run_localization, check_localization
 from stop_passive_bots import stop_passive_bots_with_list
 from copy_autolab_roster import copy_roster_with_list
 from get_csv_trajectory import request_csv
-from get_submission_map import get_map
+from submission_map import get_map, copy_map
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -213,6 +213,16 @@ def map_fetcher():
     name = request.get_json()["name"]
     step = request.get_json()["step"]
     data = get_map(container, name, step)
+    return jsonify({'data': data})
+
+# API call to copy yaml map to logging folder
+@app.route('/copy_map', methods=['POST'])
+@cross_origin()
+def map_copy():
+    mount = request.get_json()["mount"]
+    map_location = request.get_json()["map_location"]
+    path = request.get_json()["path"]
+    data = copy_map(mount, map_location, path)
     return jsonify({'data': data})
 
 if __name__ == '__main__':
