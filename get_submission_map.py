@@ -1,2 +1,2 @@
 def get_map(container):
-    return 0
+    return "http://duckietown3.local:5050/static/map.svg"
