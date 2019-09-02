@@ -20,6 +20,7 @@ from localization import run_localization, check_localization
 from stop_passive_bots import stop_passive_bots_with_list
 from copy_autolab_roster import copy_roster_with_list
 from get_csv_trajectory import request_csv
+from get_submission_map import get_map
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -202,6 +203,14 @@ def csv_requester():
     mount = request.get_json()["mount"]
     duckiebot = request.get_json()["duckiebot"]
     data = request_csv(mount, duckiebot)
+    return jsonify({'data': data})
+
+# API call to get subission map with starting positions
+@app.route('/get_map', methods=['POST'])
+@cross_origin()
+def map_fetcher():
+    container = request.get_json()["container"]
+    data = get_map(container)
     return jsonify({'data': data})
 
 if __name__ == '__main__':
