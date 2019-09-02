@@ -222,8 +222,8 @@ def map_copy():
     mount = request.get_json()["mount"]
     map_location = request.get_json()["map_location"]
     path = request.get_json()["path"]
-    data = copy_map(mount, map_location, path)
-    return jsonify({'outcome': data})
+    outcome = copy_map(mount, map_location, path)
+    return jsonify({'outcome': outcome})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5050)
