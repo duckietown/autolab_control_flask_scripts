@@ -210,7 +210,9 @@ def csv_requester():
 @cross_origin()
 def map_fetcher():
     container = request.get_json()["container"]
-    data = get_map(container)
+    name = request.get_json()["name"]
+    step = request.get_json()["step"]
+    data = get_map(container, name, step)
     return jsonify({'data': data})
 
 if __name__ == '__main__':
