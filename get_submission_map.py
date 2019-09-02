@@ -1,4 +1,5 @@
 import subprocess
+import time
 
 def get_map(container):
 
@@ -6,6 +7,8 @@ def get_map(container):
         print("Starting the map container: "+container)
         cmd = "docker run --name map_container -it --rm %s" %(container)
         subprocess.Popen(cmd, shell=True, executable="/bin/bash")
+
+        time.sleep(5)
 
         cmd = "docker cp map_container:/project/robotarium_scenario_maker/compiled/aido2-LFVI-real-validation/eval0/drawing.svg static/map.svg"
         subprocess.check_output(cmd, shell=True, executable="/bin/bash")
