@@ -152,7 +152,10 @@ def apriltag_processor():
 @app.route('/check_bag_processing', methods=['POST'])
 @cross_origin()
 def check_apriltag_processor():
-    outcome = check_bag_processing()
+    output_bag_name = request.get_json()["output_bag_name"]
+    mount_computer_origin = request.get_json()["mount_computer_origin"]
+    mount_computer_destination = request.get_json()["mount_computer_destination"]
+    outcome = check_bag_processing(output_bag_name, mount_computer_origin, mount_computer_destination)
     return jsonify({'outcome': outcome})
 
 # API call to perform docker maintenance on multiple agents, i.e. restarting, stopping, ... containers
