@@ -52,14 +52,11 @@ def upload_job(token, endpoint, url, job_id, result, ipfs_hashes, scores, upload
     #             }]
 
     data_post = {'job_id': job_id,
-                # Not needed?!
-                # 'uid': 'user367',
                 'machine_id': 'autolab_server',
                 'process_id': 'autolab_server-1',
                 'result': result,
                 'stats': stats,
                 'uploaded': uploaded,
-                # 'ipfs_hashes': {'rpath1':'cid1'},
                 'ipfs_hashes': ipfs_hashes,
                 'evaluator_version': 1}
 
