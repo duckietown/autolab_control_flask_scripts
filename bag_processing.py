@@ -98,7 +98,7 @@ def start_bag_processing(input_bag_name, output_bag_name, mount_computer_side, m
     #         return ("Error: %s" % e)
 
 
-def check_bag_processing():
+def check_bag_processing(output_bag_name, mount_computer_origin, mount_computer_destination):
     client = docker.from_env()
     container_list = client.containers.list()
     for container in container_list:
@@ -107,5 +107,14 @@ def check_bag_processing():
             if status == "running" or status == "created":
                 return("Running")
             if status == "exited":
-                return("Success")
-    return("Success")
+                return(move_file(output_bag_name, mount_computer_origin, mount_computer_destination))
+    return(move_file(output_bag_name, mount_computer_origin, mount_computer_destination))
+
+def move_file(name, origin, destination):
+    try:
+        cmd = "mkdir -p %s; cp %s/%s %s" % (destination, origin, name, destination)
+        subprocess.check_output(cmd, shell=True, executable="/bin/bash")
+        return "Success"
+
+    except subprocess.CalledProcessError:
+        return "Error"

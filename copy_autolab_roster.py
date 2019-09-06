@@ -1,7 +1,7 @@
 import subprocess
 
 def copy_roster_with_list(bot_list, mount, roster_location):
-    cmd = "cd %s; git pull" %(roster_location)
+    cmd = "cd %s; git pull; mkdir -p %s" %(roster_location, mount)
 
     try:
         subprocess.check_output(cmd, shell=True)
