@@ -21,6 +21,7 @@ from stop_passive_bots import stop_passive_bots_with_list
 from copy_autolab_roster import copy_roster_with_list
 from get_csv_trajectory import request_csv
 from submission_map import get_map, copy_map
+from ipfs_hash import create_hashes
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -223,6 +224,14 @@ def map_copy():
     map_location = request.get_json()["map_location"]
     path = request.get_json()["path"]
     outcome = copy_map(mount, map_location, path)
+    return jsonify({'outcome': outcome})
+
+# API call to create ipfs hashes
+@app.route('/ipfs_add', methods=['POST'])
+@cross_origin()
+def ipfs_add():
+    path = request.get_json()["path"]
+    outcome = create_hashes(path)
     return jsonify({'outcome': outcome})
 
 if __name__ == '__main__':
