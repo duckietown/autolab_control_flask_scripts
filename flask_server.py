@@ -230,9 +230,9 @@ def map_copy():
 @app.route('/ipfs_add', methods=['POST'])
 @cross_origin()
 def ipfs_add():
-    path = request.get_json()["path"]
-    outcome = create_hashes(path)
-    return jsonify({'outcome': outcome})
+    mount = request.get_json()["mount"]
+    data = create_hashes(mount)
+    return jsonify({'data': data})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5050)
