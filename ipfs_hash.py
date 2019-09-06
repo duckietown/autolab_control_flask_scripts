@@ -10,8 +10,3 @@ def create_hashes(path):
 
     except subprocess.CalledProcessError:
         return "Error"
-
-
-pwd = "~/AIDO3_experiment_data/submission_20/eval0/20190905_195810"
-out = create_hashes(pwd)
-print(out)
