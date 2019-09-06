@@ -84,7 +84,12 @@ def data_upload():
     token = request.get_json()["token"]
     endpoint = request.get_json()["endpoint"]
     url = request.get_json()["url"]
-    response = upload_job(token, endpoint, url)
+    job_id = request.get_json()["job_id"]
+    result = request.get_json()["result"]
+    ipfs_hashes = request.get_json()["ipfs_hashes"]
+    scores = request.get_json()["scores"]
+    uploaded = request.get_json()["uploaded"]
+    response = upload_job(token, endpoint, url, job_id, result, ipfs_hashes, scores, uploaded)
     return jsonify(response)
 
 # API call to reset the duckiebot-inteface and acquisition-bridge on a duckiebot
