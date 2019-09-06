@@ -27,7 +27,7 @@ def copy_map(mount, map_location, path):
         cmd = "cd %s; git pull" %(map_location)
         subprocess.check_output(cmd, shell=True, executable="/bin/bash")
 
-        cmd = "mkdir -p %s; cp %s/%s %s" %(mount, map_location, path, mount)
+        cmd = "mkdir -p %s; cp %s/%s %s/map.yaml" %(mount, map_location, path, mount)
         subprocess.Popen(cmd, shell=True, executable="/bin/bash")
 
         return "Success"
