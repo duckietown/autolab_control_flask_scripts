@@ -112,7 +112,7 @@ def check_bag_processing(output_bag_name, mount_computer_origin, mount_computer_
 
 def move_file(name, origin, destination):
     try:
-        cmd = "mkdir -p %s; cp %s/%s %s" % (destination, origin, name, destination)
+        cmd = "mkdir -p %s; mv %s/%s %s" % (destination, origin, name, destination)
         subprocess.check_output(cmd, shell=True, executable="/bin/bash")
         return "Success"
 
