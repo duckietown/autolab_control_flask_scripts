@@ -41,7 +41,7 @@ def request_job(token, endpoint, url):
 def upload_job(token, endpoint, url, job_id, result, ipfs_hashes, scores, uploaded):
 
 
-    stats = {'msg': 'Stats from teh evaluation of job: '+job_id, 
+    stats = {'msg': 'Scores from the evaluation of job: '+str(job_id), 
             'scores': scores}
 
     # uploaded = [{'storage': {},
