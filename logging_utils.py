@@ -8,7 +8,7 @@ def start_logging(computer, filename, device_list, mount_folder):
     for device in device_list:
         cmd += " /"+device+"/imageSparse/compressed /"+device+"/camera_node/camera_info"
         if "bot" in device:
-            cmd += " /"+device+"/wheels_driver_node/wheels_cmd"
+            cmd += " /"+device+"/wheels_driver_node/wheels_cmd_decalibrated"
     cmd += "'"
     try:
         subprocess.check_output(cmd, shell=True)
