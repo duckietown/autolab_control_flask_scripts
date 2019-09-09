@@ -1,3 +1,0 @@
-[submodule "duckietown-challenges-runner"]
-	path = duckietown-challenges-runner
-	url = git@github.com:duckietown/duckietown-challenges-runner.git

@@ -1,6 +1,8 @@
 import json
 import os
 import requests
+from upload_s3 import upload_files
+
 
 # token = "dt1-daZUHiuSz7CUfsyDk2mmFCK9ddeiSS9DCs5LZV532hA3v-43dzqWFnWd8KBa1yev1g3UKnzVxZkkTbfWvjdF2AUv2xiPLeCSj6EJEqvC7HywPfdC"
 # endpoint = "/api/take-submission"
@@ -37,6 +39,10 @@ def request_job(token, endpoint, url):
     tmp = requests.get(url+endpoint,data=json.dumps(data_get), headers={'X-Messaging-Token':token})
     return tmp.content
 
+def upload_s3(aws_config, path, ignore_pattern):
+    uploaded = upload_files(path, aws_config, ignore_pattern)
+    return uploaded
+
 
 def upload_job(token, endpoint, url, job_id, result, ipfs_hashes, scores, uploaded):
 
@@ -62,3 +68,5 @@ def upload_job(token, endpoint, url, job_id, result, ipfs_hashes, scores, upload
 
     tmp = requests.post(url+endpoint,data=json.dumps(data_post), headers={'X-Messaging-Token':token})
     return tmp.content
+
+print(upload_s3("aws_config","/home/ben/Test_S3/",()))

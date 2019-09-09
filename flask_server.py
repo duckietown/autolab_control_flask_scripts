@@ -242,5 +242,15 @@ def ipfs_add():
     data = create_hashes(mount)
     return jsonify({'data': data})
 
+# API call to create ipfs hashes
+@app.route('/upload_s3', methods=['POST'])
+@cross_origin()
+def ipfs_add():
+    aws_config = request.get_json()["aws_config"]
+    path = request.get_json()["path"]
+    ignore_pattern = request.get_json()["ignore_pattern"]
+    data = upload_s3(aws_config, path, ignore_pattern)
+    return jsonify({'data': data})
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5050)
