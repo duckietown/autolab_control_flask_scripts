@@ -19,9 +19,8 @@ from docker_maintenance import docker_maintenance_with_list
 from localization import run_localization, check_localization
 from stop_passive_bots import stop_passive_bots_with_list
 from copy_autolab_roster import copy_roster_with_list
-from get_csv_trajectory import request_csv
+from get_trajectory import request_yaml
 from submission_map import get_map, copy_map
-from ipfs_hash import create_hashes
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -206,12 +205,12 @@ def copy_roster():
     return jsonify({'outcome': outcome})
 
 # API call request submission csv
-@app.route('/request_csv', methods=['POST'])
+@app.route('/request_yaml', methods=['POST'])
 @cross_origin()
-def csv_requester():
+def yaml_requester():
     mount = request.get_json()["mount"]
     duckiebot = request.get_json()["duckiebot"]
-    data = request_csv(mount, duckiebot)
+    data = request_yaml(mount, duckiebot)
     return jsonify({'data': data})
 
 # API call to get subission map with starting positions
