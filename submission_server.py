@@ -4,11 +4,6 @@ import requests
 from upload_s3 import upload_files
 import subprocess
 
-
-# token = "dt1-daZUHiuSz7CUfsyDk2mmFCK9ddeiSS9DCs5LZV532hA3v-43dzqWFnWd8KBa1yev1g3UKnzVxZkkTbfWvjdF2AUv2xiPLeCSj6EJEqvC7HywPfdC"
-# endpoint = "/api/take-submission"
-# url = "http://localhost:6544"
-
 def request_job(token, endpoint, url):
     features = {'disk_available_mb': 100000,
                 'disk_total_mb': 256000,
@@ -68,12 +63,6 @@ def upload_job(token, endpoint, url, job_id, result, ipfs_hashes, scores, upload
     stats = {'msg': 'Scores from the evaluation of job: '+str(job_id), 
             'scores': scores}
 
-    # uploaded = [{'storage': {},
-    #             'size': 21543,
-    #             'mime_type': 'text/yaml',
-    #             'rpath': 'path/to/my/container',
-    #             'sha256hex': 'E94281471ADCB12BCDCEDD5D7205A7F447447F15C49A12C906D73D015AC339C8'
-    #             }]
 
     data_post = {'job_id': job_id,
                 'machine_id': 'autolab_server',
