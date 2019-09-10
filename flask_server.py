@@ -182,7 +182,11 @@ def process_localization():
 @app.route('/check_localization', methods=['POST'])
 @cross_origin()
 def localization_checker():
-    outcome = check_localization()
+    active_bot = request.get_json()["active_bot"]
+    passive_bots = request.get_json()["passive_bots"]
+    origin_path = request.get_json()["origin_path"]
+    destination_path = request.get_json()["destination_path"]
+    outcome = check_localization(active_bot, passive_bots, origin_path, destination_path)
     return jsonify({'outcome': outcome})
 
 # API call to stop demos on the duckiebots (passive bots)
