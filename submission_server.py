@@ -2,6 +2,7 @@ import json
 import os
 import requests
 from upload_s3 import upload_files
+import subprocess
 
 
 # token = "dt1-daZUHiuSz7CUfsyDk2mmFCK9ddeiSS9DCs5LZV532hA3v-43dzqWFnWd8KBa1yev1g3UKnzVxZkkTbfWvjdF2AUv2xiPLeCSj6EJEqvC7HywPfdC"
@@ -43,6 +44,23 @@ def upload_s3(aws_config, path, ignore_pattern):
     uploaded = upload_files(path, aws_config, ignore_pattern)
     return uploaded
 
+def create_hashes(path):
+
+    try:
+        cmd = "ipfs add -r %s" % (path)
+        out = subprocess.check_output(cmd, shell=True, executable="/bin/bash")
+        tmp = out.split('\n')
+        if (tmp[-1]==""):
+            tmp = tmp[:-1]
+        result = {}
+        for line in tmp:
+            line=line.split(' ')
+            result[line[2]]=line[1]
+        return result
+
+    except subprocess.CalledProcessError:
+        return "Error"
+
 
 def upload_job(token, endpoint, url, job_id, result, ipfs_hashes, scores, uploaded):
 
@@ -68,5 +86,3 @@ def upload_job(token, endpoint, url, job_id, result, ipfs_hashes, scores, upload
 
     tmp = requests.post(url+endpoint,data=json.dumps(data_post), headers={'X-Messaging-Token':token})
     return tmp.content
-
-print(upload_s3("aws_config","/home/ben/Test_S3/",()))

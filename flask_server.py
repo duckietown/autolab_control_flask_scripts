@@ -9,7 +9,7 @@ import json
 from ping_all import ping_all_main, ping_all_with_list
 from start_active_bots import start_active_bots_with_list
 from start_passive_bots import start_passive_bots_with_list
-from submission_server import request_job, upload_job
+from submission_server import request_job, upload_job, create_hashes, upload_s3
 from reset_duckiebot import reset_duckiebot_with_list
 from create_log import generate_log_file
 from logging_utils import start_logging, stop_logging
@@ -242,10 +242,10 @@ def ipfs_add():
     data = create_hashes(mount)
     return jsonify({'data': data})
 
-# API call to create ipfs hashes
+# API call to upload to S3
 @app.route('/upload_s3', methods=['POST'])
 @cross_origin()
-def ipfs_add():
+def s3_uploader():
     aws_config = request.get_json()["aws_config"]
     path = request.get_json()["path"]
     ignore_pattern = request.get_json()["ignore_pattern"]
