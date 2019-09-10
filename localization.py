@@ -20,7 +20,7 @@ def run_localization(input_bag_path, output_dir, mount_computer_side, mount_cont
     pass
 
 
-def check_localization(active_bot, passive_bots, origin_path, destination_path):
+def check_localization(active_bots, passive_bots, origin_path, destination_path):
     client = docker.from_env()
     container_list = client.containers.list()
     for container in container_list:
@@ -37,8 +37,9 @@ def check_localization(active_bot, passive_bots, origin_path, destination_path):
         for i in range(len(passive_bots)):
             cmd = "mv %s/%s.yaml %s/passive%s.yaml" % (origin_path,passive_bots[i],destination_path,i+1)
             subprocess.check_output(cmd, shell=True)
-        cmd = "mv %s/%s.yaml %s/active.yaml" % (origin_path,active_bot,destination_path)   
-        subprocess.check_output(cmd, shell=True)
+        for i in range(len(active_bots)):
+            cmd = "mv %s/%s.yaml %s/active%s.yaml" % (origin_path,active_bots[i],destination_path,i+1)   
+            subprocess.check_output(cmd, shell=True)
         return("Success")
     except subprocess.CalledProcessError as e:
         return ("Error: %s" % e)
