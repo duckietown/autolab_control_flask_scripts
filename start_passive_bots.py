@@ -23,8 +23,8 @@ def start_device(device):
                     print(device+ ": Try number "+str(count)+" was successfull, the demo is running")
                     time.sleep(30)
                     cmd = 'docker -H %s.local exec -it demo_%s\
-                         /bin/bash environment.sh rostopic pub /%s/joy_mapper_node/joystick_override duckietown_msgs/BoolStamped\
-                         "{header: {seq: 0, stamp: {secs: 0, nsecs: 0}, frame_id: \'\'}, data: false}"' % (device,demo_name,device)
+                         /bin/bash -c "source ../../devel/setup.bash; rostopic pub /%s/joy_mapper_node/joystick_override duckietown_msgs/BoolStamped\
+                         \"{header: {seq: 0, stamp: {secs: 0, nsecs: 0}, frame_id: \'\'}, data: false}\""' % (device,demo_name,device)
                     res = subprocess.Popen(cmd, shell=True, executable="/bin/bash")
                     print(device+ ": Released joystick override")
                     return "Started demo"
