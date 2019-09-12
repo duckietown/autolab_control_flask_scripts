@@ -10,7 +10,7 @@ def start_device(device):
     global demo_name
     try:
         print(device+ ": Starting the demo: "+demo_name)
-        cmd = "dts duckiebot demo --demo_name %s --duckiebot %s --package_name duckietown_demos" % (demo_name, device)
+        cmd = "dts duckiebot demo --demo_name %s --duckiebot %s --package_name duckietown_demos --image duckietown/dt-core:daffy" % (demo_name, device)
         res = subprocess.Popen(cmd, shell=True, executable="/bin/bash")
         time.sleep(10)
         count = 0
