@@ -1,10 +1,8 @@
 #!/bin/bash
 
 # Set the devices here
-watchtowers=($(seq -w 1 16) $(seq -w 21 35) $(seq -w 41 54))
-autobots=($(seq -w 1 10))
-storage="duckietown06"
-storage_password="IDSCrocks2019"
+watchtowers=($(seq -w 1 60))
+autobots=($(seq -w 1 20))
 
 # FOR ROHIT ssh-add ~/.ssh/DT18_key_00 and it need to be chmod 600
 # Step 1: Check DT18 key exists already in .ssh. If not, find it in duckietown-shell and copy.
@@ -75,38 +73,3 @@ EOM
 
     printf "Done!\n"
 done
-
-
-
-# # Step 4: Setup Storage
-# printf "Setting up storage at %s.." ${storage}
-#
-# cat >> /home/$USER/.ssh/config <<- EOM
-#
-# # --- setup_ssh.sh generated ---
-#
-# Host ${storage}
-#     User aido2
-#     Hostname ${storage}.local
-#     IdentityFile /home/$USER/.ssh/DT18_key_00
-#     StrictHostKeyChecking no
-# # ------------------------------
-#
-# EOM
-# printf "Done!\n"
-#
-# # Uncomment this line to set up a new storage server
-# # sshpass -p ${storage_password} ssh-copy-id -f -i /home/$USER/.ssh/DT18_key_00 ${storage} -p 22
-#
-# echo "alias mount-aido=\"mkdir -p ~/AIDO2_experiment_data; sshfs -o reconnect,ServerAliveInterval=15,ServerAliveCountMax=3 duckietown06:/home/aido2/AIDO2_experiment_data ~/AIDO2_experiment_data\"" >> ~/.bashrc
-# echo "alias unmount-aido=\"fusermount -u ~/AIDO2_experiment_data\"" >> ~/.bashrc
-# echo "alias mount-aido=\"mkdir -p ~/AIDO2_experiment_data; sshfs -o reconnect,ServerAliveInterval=15,ServerAliveCountMax=3 duckietown06:/home/aido2/AIDO2_experiment_data ~/AIDO2_experiment_data\"" >> ~/.zshrc
-# echo "alias unmount-aido=\"fusermount -u ~/AIDO2_experiment_data\"" >> ~/.zshrc
-#
-# RED='\033[0;31m'
-# NC='\033[0m' # No Color
-#
-# printf "${RED}"
-# printf "\n\n\n[IMPORTANT]\n"
-# printf "Open a new terminal for changes to take place\n\n"
-# printf "${NC}"
