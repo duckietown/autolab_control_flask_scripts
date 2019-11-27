@@ -88,7 +88,8 @@ def data_upload():
     ipfs_hashes = request.get_json()["ipfs_hashes"]
     scores = request.get_json()["scores"]
     uploaded = request.get_json()["uploaded"]
-    response = upload_job(token, endpoint, url, job_id, result, ipfs_hashes, scores, uploaded)
+    response = upload_job(token, endpoint, url, job_id,
+                          result, ipfs_hashes, scores, uploaded)
     return jsonify(response)
 
 # API call to reset the duckiebot-inteface and acquisition-bridge on a duckiebot
@@ -143,8 +144,9 @@ def apriltag_processor():
     output_bag_name = request.get_json()["output_bag_name"]
     mount_computer_side = request.get_json()["mount_computer_side"]
     mount_container_side = request.get_json()["mount_container_side"]
+    device_list = request.get_json()["device_list"]
     outcome = start_bag_processing(
-        input_bag_name, output_bag_name, mount_computer_side, mount_container_side)
+        input_bag_name, output_bag_name, mount_computer_side, device_list, mount_container_side)
     return jsonify({'outcome': outcome})
 
 # API call to check the apriltag posprocessing from the gathered Rosbag/images
@@ -153,8 +155,10 @@ def apriltag_processor():
 def check_apriltag_processor():
     output_bag_name = request.get_json()["output_bag_name"]
     mount_computer_origin = request.get_json()["mount_computer_origin"]
-    mount_computer_destination = request.get_json()["mount_computer_destination"]
-    outcome = check_bag_processing(output_bag_name, mount_computer_origin, mount_computer_destination)
+    mount_computer_destination = request.get_json()[
+        "mount_computer_destination"]
+    outcome = check_bag_processing(
+        output_bag_name, mount_computer_origin, mount_computer_destination)
     return jsonify({'outcome': outcome})
 
 # API call to perform docker maintenance on multiple agents, i.e. restarting, stopping, ... containers
@@ -186,7 +190,8 @@ def localization_checker():
     passive_bots = request.get_json()["passive_bots"]
     origin_path = request.get_json()["origin_path"]
     destination_path = request.get_json()["destination_path"]
-    outcome = check_localization(active_bot, passive_bots, origin_path, destination_path)
+    outcome = check_localization(
+        active_bot, passive_bots, origin_path, destination_path)
     return jsonify({'outcome': outcome})
 
 # API call to stop demos on the duckiebots (passive bots)
@@ -254,6 +259,7 @@ def s3_uploader():
     ignore_pattern = request.get_json()["ignore_pattern"]
     data = upload_s3(aws_config, path, ignore_pattern)
     return jsonify({'data': data})
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5050)

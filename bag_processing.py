@@ -21,11 +21,29 @@ import docker
 name = "postprocessor"
 
 
-def start_bag_processing(input_bag_name, output_bag_name, mount_computer_side, mount_container_side="/data"):
+def split_bags(input_bag_name, mount_computer_side, device_list):
+
+    container_side_input = "/%s/%s" % (mount_computer_side, input_bag_name)
+    for device in device_list:
+        new_bag_name = "/%s/%s.bag" % (mount_computer_side, device)
+        cmd = "rosbag filter %s %s \" '%s' in topic \" " % (
+            container_side_input, new_bag_name, device)
+        try:
+            out = subprocess.check_output(
+                cmd, shell=True, stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError as e:
+            print("Error splitting for %s : %s" % (device, e))
+            return False
+    return True
+
+
+def start_bag_processing(input_bag_name, output_bag_name, mount_computer_side, device_list, mount_container_side="/data"):
     client = docker.from_env()
     bags_name = []
     container_side_input = "/%s/%s" % (mount_container_side, input_bag_name)
 
+    if not split_bags(input_bag_name, mount_computer_side, device_list):
+        print("Could not split the bags!!")
     processed_bag_name = "%s.bag" % (output_bag_name)
     output_container = "/%s/%s" % (
         mount_container_side, processed_bag_name)
