@@ -2,7 +2,7 @@ import subprocess
 import multiprocessing
 from typing import List
 
-from aido_utils import get_device_list, show_status
+from .aido_utils import get_device_list, show_status
 
 demo_name = ""
 

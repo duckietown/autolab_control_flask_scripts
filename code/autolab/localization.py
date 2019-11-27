@@ -1,5 +1,5 @@
 import subprocess
-import rosbag
+# import rosbag
 import docker
 import time
 
@@ -38,7 +38,7 @@ def check_localization(active_bots, passive_bots, origin_path, destination_path)
             cmd = "mv %s/%s.yaml %s/passive%s.yaml" % (origin_path,passive_bots[i],destination_path,i+1)
             subprocess.check_output(cmd, shell=True)
         for i in range(len(active_bots)):
-            cmd = "mv %s/%s.yaml %s/active%s.yaml" % (origin_path,active_bots[i],destination_path,i+1)   
+            cmd = "mv %s/%s.yaml %s/active%s.yaml" % (origin_path,active_bots[i],destination_path,i+1)
             subprocess.check_output(cmd, shell=True)
         return("Success")
     except subprocess.CalledProcessError as e:

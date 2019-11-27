@@ -1,8 +1,9 @@
-import subprocess,multiprocessing
+import subprocess
+import multiprocessing
 from typing import List
 import time
 
-from aido_utils import get_device_list, show_status
+from .aido_utils import get_device_list, show_status
 
 container = ""
 duration = 0

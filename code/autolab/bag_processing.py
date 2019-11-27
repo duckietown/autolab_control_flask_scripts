@@ -1,5 +1,5 @@
 import subprocess
-import rosbag
+# import rosbag
 import time
 import docker
 

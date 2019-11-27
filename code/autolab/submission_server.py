@@ -1,8 +1,9 @@
 import json
 import os
 import requests
-from upload_s3 import upload_files
 import subprocess
+
+from .upload_s3 import upload_files
 
 def request_job(token, endpoint, url):
     features = {'disk_available_mb': 100000,
@@ -32,8 +33,13 @@ def request_job(token, endpoint, url):
                 'features': features,
                 'reset': False}
 
-    tmp = requests.get(url+endpoint,data=json.dumps(data_get), headers={'X-Messaging-Token':token})
-    return tmp.content
+    url += endpoint
+    tmp = requests.get(
+        url,
+        data=json.dumps(data_get),
+        headers={'X-Messaging-Token':token}
+    )
+    return tmp.content.decode('utf-8')
 
 def upload_s3(aws_config, path, ignore_pattern):
     uploaded = upload_files(path, aws_config, ignore_pattern)
@@ -60,7 +66,7 @@ def create_hashes(path):
 def upload_job(token, endpoint, url, job_id, result, ipfs_hashes, scores, uploaded):
 
 
-    stats = {'msg': 'Scores from the evaluation of job: '+str(job_id), 
+    stats = {'msg': 'Scores from the evaluation of job: '+str(job_id),
             'scores': scores}
 
 

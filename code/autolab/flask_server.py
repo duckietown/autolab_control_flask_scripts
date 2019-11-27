@@ -6,21 +6,21 @@ from flask_cors import CORS, cross_origin
 import requests
 import json
 
-from ping_all import ping_all_main, ping_all_with_list
-from start_active_bots import start_active_bots_with_list
-from start_passive_bots import start_passive_bots_with_list
-from submission_server import request_job, upload_job, create_hashes, upload_s3
-from reset_duckiebot import reset_duckiebot_with_list
-from create_log import generate_log_file
-from logging_utils import start_logging, stop_logging
-from bag_processing import start_bag_processing, check_bag_processing
-from space_check import check_space_for_logging
-from docker_maintenance import docker_maintenance_with_list
-from localization import run_localization, check_localization
-from stop_passive_bots import stop_passive_bots_with_list
-from copy_autolab_roster import copy_roster_with_list
-from get_trajectory import request_yaml
-from submission_map import get_map, copy_map
+from .ping_all import ping_all_main, ping_all_with_list
+from .start_active_bots import start_active_bots_with_list
+from .start_passive_bots import start_passive_bots_with_list
+from .submission_server import request_job, upload_job, create_hashes, upload_s3
+from .reset_duckiebot import reset_duckiebot_with_list
+from .create_log import generate_log_file
+from .logging_utils import start_logging, stop_logging
+from .bag_processing import start_bag_processing, check_bag_processing
+from .space_check import check_space_for_logging
+from .docker_maintenance import docker_maintenance_with_list
+from .localization import run_localization, check_localization
+from .stop_passive_bots import stop_passive_bots_with_list
+from .copy_autolab_roster import copy_roster_with_list
+from .get_trajectory import request_yaml
+from .submission_map import get_map, copy_map
 
 app = Flask(__name__)
 cors = CORS(app)
