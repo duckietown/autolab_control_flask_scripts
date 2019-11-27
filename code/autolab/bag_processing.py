@@ -21,13 +21,31 @@ import docker
 name = "postprocessor"
 
 
-def start_bag_processing(input_bag_name, output_bag_name, mount_computer_side, mount_container_side="/data"):
+def split_bags(input_bag_name, mount_computer_side, device_list):
+
+    container_side_input = "/%s/%s" % (mount_computer_side, input_bag_name)
+    for device in device_list:
+        new_bag_name = "/%s/%s.bag" % (mount_computer_side, device)
+        cmd = "rosbag filter %s %s \" '%s' in topic \" " % (
+            container_side_input, new_bag_name, device)
+        try:
+            out = subprocess.check_output(
+                cmd, shell=True, stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError as e:
+            print("Error splitting for %s : %s" % (device, e))
+            return False
+    return True
+
+
+def start_bag_processing(input_bag_name, output_bag_name, mount_computer_side, device_list, mount_container_side="/data"):
     client = docker.from_env()
     bags_name = []
-    container_side_input = "%s/%s" % (mount_container_side, input_bag_name)
+    container_side_input = "/%s/%s" % (mount_container_side, input_bag_name)
 
+    if not split_bags(input_bag_name, mount_computer_side, device_list):
+        print("Could not split the bags!!")
     processed_bag_name = "%s.bag" % (output_bag_name)
-    output_container = "%s/%s" % (
+    output_container = "/%s/%s" % (
         mount_container_side, processed_bag_name)
     output_computer = "%s/%s" % (mount_computer_side, processed_bag_name)
     bags_name.append(output_computer)
@@ -35,13 +53,13 @@ def start_bag_processing(input_bag_name, output_bag_name, mount_computer_side, m
     env = []
     env.append("INPUT_BAG_PATH=%s" % container_side_input)
     env.append("OUTPUT_BAG_PATH=%s" % output_container)
-    env.append("ROS_MASTER_URI=http://172.31.168.115:11311")
+    env.append("ROS_MASTER_URI=http://172.31.168.112:11311")
     volume = {mount_computer_side: {
         'bind': mount_container_side, 'mode': 'rw'}}
     try:
         client.containers.prune()
         container = client.containers.run(
-            image="duckietown/post-processor:master19-amd64", detach=True, environment=env, volumes=volume, name=name)
+            image="duckietown/post-processor:daffy-amd64", detach=True, environment=env, volumes=volume, name=name)
         print("Success: ")
         # print(container)
         # print(container.status)
@@ -77,7 +95,7 @@ def start_bag_processing(input_bag_name, output_bag_name, mount_computer_side, m
     #     env.append("ACQ_DEVICE_NAME=%s" % autobot)
     #     env.append("INPUT_BAG_PATH=%s" % container_side_input)
     #     env.append("OUTPUT_BAG_PATH=%s" % output_container)
-    #     env.append("ROS_MASTER_URI=http://172.31.168.115:11311")
+    #     env.append("ROS_MASTER_URI=http://172.31.168.2:11311")
     #     volume = {mount_computer_side: {
     #         'bind': mount_container_side, 'mode': 'rw'}}
     #     name = "odometryprocessor%s" % autobot
@@ -110,9 +128,11 @@ def check_bag_processing(output_bag_name, mount_computer_origin, mount_computer_
                 return(move_file(output_bag_name, mount_computer_origin, mount_computer_destination))
     return(move_file(output_bag_name, mount_computer_origin, mount_computer_destination))
 
+
 def move_file(name, origin, destination):
     try:
-        cmd = "mkdir -p %s; mv %s/%s.bag %s" % (destination, origin, name, destination)
+        cmd = "mkdir -p %s; mv %s/%s.bag %s" % (
+            destination, origin, name, destination)
         subprocess.check_output(cmd, shell=True, executable="/bin/bash")
         return "Success"
 

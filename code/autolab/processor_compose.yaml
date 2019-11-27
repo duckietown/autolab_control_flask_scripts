@@ -1,14 +1,14 @@
 version: '3'
 services:
     post-processor:
-        image: duckietown/post-processor:master19-amd64
+        image: duckietown/post-processor:daffy-amd64
         environment:
-            ROS_MASTER_URI: http://172.31.168.115:11311
+            ROS_MASTER_URI: http://172.31.168.112:11311
 
     localization:
-        image: duckietown/cslam-graphoptimizer:master19-amd64
+        image: duckietown/cslam-graphoptimizer:daffy-amd64
         network_mode: "host"
         environment:
-            ROS_HOSTNAME: 172.31.168.115
-            ROS_IP: 172.31.168.115
-            ROS_MASTER : duckietown3
+            ROS_MASTER_IP: 172.31.168.112
+            ROS_MASTER : duckietown06
+
