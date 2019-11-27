@@ -1,0 +1,4 @@
+# LIST YOUR APT PACKAGES HERE
+iputils-ping
+# avahi alone is not enough to resolve .local hostnames, libnss-mdns is also needed
+libnss-mdns

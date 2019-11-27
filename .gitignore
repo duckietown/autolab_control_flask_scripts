@@ -1,4 +1,2 @@
-*.pyc
-*.log
-/.vscode
-*.svg
+docs/build
+*pyc

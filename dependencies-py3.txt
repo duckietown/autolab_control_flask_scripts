@@ -1,0 +1,7 @@
+# LIST YOUR PYTHON3 PACKAGES HERE
+flask
+flask-cors
+requests
+boto3
+pyaml
+docker
