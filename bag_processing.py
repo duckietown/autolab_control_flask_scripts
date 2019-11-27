@@ -24,10 +24,10 @@ name = "postprocessor"
 def start_bag_processing(input_bag_name, output_bag_name, mount_computer_side, mount_container_side="/data"):
     client = docker.from_env()
     bags_name = []
-    container_side_input = "%s/%s" % (mount_container_side, input_bag_name)
+    container_side_input = "/%s/%s" % (mount_container_side, input_bag_name)
 
     processed_bag_name = "%s.bag" % (output_bag_name)
-    output_container = "%s/%s" % (
+    output_container = "/%s/%s" % (
         mount_container_side, processed_bag_name)
     output_computer = "%s/%s" % (mount_computer_side, processed_bag_name)
     bags_name.append(output_computer)
@@ -41,7 +41,7 @@ def start_bag_processing(input_bag_name, output_bag_name, mount_computer_side, m
     try:
         client.containers.prune()
         container = client.containers.run(
-            image="duckietown/post-processor:master19-amd64", detach=True, environment=env, volumes=volume, name=name)
+            image="duckietown/post-processor:daffy-amd64", detach=True, environment=env, volumes=volume, name=name)
         print("Success: ")
         # print(container)
         # print(container.status)
@@ -110,9 +110,11 @@ def check_bag_processing(output_bag_name, mount_computer_origin, mount_computer_
                 return(move_file(output_bag_name, mount_computer_origin, mount_computer_destination))
     return(move_file(output_bag_name, mount_computer_origin, mount_computer_destination))
 
+
 def move_file(name, origin, destination):
     try:
-        cmd = "mkdir -p %s; mv %s/%s.bag %s" % (destination, origin, name, destination)
+        cmd = "mkdir -p %s; mv %s/%s.bag %s" % (
+            destination, origin, name, destination)
         subprocess.check_output(cmd, shell=True, executable="/bin/bash")
         return "Success"
 

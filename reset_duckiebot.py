@@ -1,46 +1,48 @@
-import subprocess,multiprocessing
+import subprocess
+import multiprocessing
 from typing import List
 import time
 
 from aido_utils import get_device_list, show_status
 
+
 def start_device(device):
     try:
         if "bot" in device:
-            print(device+ ": Stopping the car-interface")
+            print(device + ": Stopping the car-interface")
             cmd = "docker -H %s.local stop car-interface" % device
             subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
         else:
-            print(device+ ": Stopping the light-sensor")
+            print(device + ": Stopping the light-sensor")
             cmd = "docker -H %s.local stop dt-light-sensor" % device
             subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
         time.sleep(5)
-        print(device+ ": Stopping the acquisition-bridge")
+        print(device + ": Stopping the acquisition-bridge")
         cmd = "docker -H %s.local stop acquisition-bridge" % device
         subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
         time.sleep(5)
-        print(device+ ": Restarting the duckiebot-interface")
+        print(device + ": Restarting the duckiebot-interface")
         cmd = "docker -H %s.local restart duckiebot-interface" % device
         subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
         time.sleep(5)
         if "bot" in device:
-            print(device+ ": Restarting the car-interface")
+            print(device + ": Restarting the car-interface")
             cmd = "docker -H %s.local start car-interface" % device
             subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
         else:
-            print(device+ ": Restarting the light-sensor")
+            print(device + ": Restarting the light-sensor")
             cmd = "docker -H %s.local start dt-light-sensor" % device
             subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
         time.sleep(5)
-        print(device+ ": Restarting the acquisition-bridge")
+        print(device + ": Restarting the acquisition-bridge")
         cmd = "docker -H %s.local start acquisition-bridge" % device
         subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
         time.sleep(10)
-        
+
         return "Duckiebot reset"
 
-    except subprocess.CalledProcessError:
-        return "Error"
+    except subprocess.CalledProcessError as e:
+        return "Error %s" % e
 
 
 def start_all_devices(device_list):
@@ -50,6 +52,7 @@ def start_all_devices(device_list):
     pool.join()
     show_status(device_list, results)
     return results
+
 
 def reset_duckiebot_with_list(device_list):
     outcome = start_all_devices(device_list)
