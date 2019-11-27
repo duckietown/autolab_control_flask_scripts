@@ -35,7 +35,7 @@ def start_bag_processing(input_bag_name, output_bag_name, mount_computer_side, m
     env = []
     env.append("INPUT_BAG_PATH=%s" % container_side_input)
     env.append("OUTPUT_BAG_PATH=%s" % output_container)
-    env.append("ROS_MASTER_URI=http://172.31.168.115:11311")
+    env.append("ROS_MASTER_URI=http://172.31.168.112:11311")
     volume = {mount_computer_side: {
         'bind': mount_container_side, 'mode': 'rw'}}
     try:
@@ -77,7 +77,7 @@ def start_bag_processing(input_bag_name, output_bag_name, mount_computer_side, m
     #     env.append("ACQ_DEVICE_NAME=%s" % autobot)
     #     env.append("INPUT_BAG_PATH=%s" % container_side_input)
     #     env.append("OUTPUT_BAG_PATH=%s" % output_container)
-    #     env.append("ROS_MASTER_URI=http://172.31.168.115:11311")
+    #     env.append("ROS_MASTER_URI=http://172.31.168.2:11311")
     #     volume = {mount_computer_side: {
     #         'bind': mount_container_side, 'mode': 'rw'}}
     #     name = "odometryprocessor%s" % autobot
