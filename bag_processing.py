@@ -2,7 +2,7 @@ import subprocess
 import rosbag
 import time
 import docker
-
+import os
 
 # def merge_bags(bags_name, output_bag_path):
 #     output_bag = rosbag.Bag(output_bag_path, 'w')
@@ -23,7 +23,7 @@ name = "postprocessor"
 
 def split_bags(input_bag_name, mount_computer_side, device_list):
 
-    container_side_input = "/%s/%s" % (mount_computer_side, input_bag_name)
+    container_side_input = "/%s/%s.bag" % (mount_computer_side, input_bag_name)
     for device in device_list:
         new_bag_name = "/%s/%s.bag" % (mount_computer_side, device)
         cmd = "rosbag filter %s %s \" '%s' in topic \" " % (
@@ -37,10 +37,33 @@ def split_bags(input_bag_name, mount_computer_side, device_list):
     return True
 
 
-def start_bag_processing(input_bag_name, output_bag_name, mount_computer_side, device_list, mount_container_side="/data"):
+def cut_bag_beginning(input_bag_name, mount_computer_side, start_time):
+    container_side_input = "/%s/%s.bag" % (mount_computer_side, input_bag_name)
+    new_bag_name = "/%s/%s_cut.bag" % (mount_computer_side, input_bag_name)
+    cmd = "rosbag filter %s %s \" t.secs >= %f \" " % (
+        container_side_input, new_bag_name, start_time/1000.0 - 1.0)
+    try:
+        out = subprocess.check_output(
+            cmd, shell=True, stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as e:
+        print("Error cutting bag : %s" % e)
+        return False
+    
+    if(os.path.getsize(new_bag_name) > 10000):
+        os.remove(container_side_input)
+        os.rename(new_bag_name, container_side_input)
+    else:
+        print("cut bag was too small")
+    return True
+
+
+def start_bag_processing(input_bag_name, output_bag_name, mount_computer_side, device_list, start_time, mount_container_side="/data"):
     client = docker.from_env()
     bags_name = []
     container_side_input = "/%s/%s" % (mount_container_side, input_bag_name)
+
+    if not cut_bag_beginning(input_bag_name, mount_computer_side, start_time):
+        print("Could not cut bag beginning")
 
     if not split_bags(input_bag_name, mount_computer_side, device_list):
         print("Could not split the bags!!")

@@ -145,8 +145,10 @@ def apriltag_processor():
     mount_computer_side = request.get_json()["mount_computer_side"]
     mount_container_side = request.get_json()["mount_container_side"]
     device_list = request.get_json()["device_list"]
+    start_time = request.get_json()["start_timestamp"]
+
     outcome = start_bag_processing(
-        input_bag_name, output_bag_name, mount_computer_side, device_list, mount_container_side)
+        input_bag_name, output_bag_name, mount_computer_side, device_list, start_time, mount_container_side)
     return jsonify({'outcome': outcome})
 
 # API call to check the apriltag posprocessing from the gathered Rosbag/images
