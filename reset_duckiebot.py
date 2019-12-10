@@ -10,21 +10,21 @@ def start_device(device):
     try:
         if "bot" in device:
             print(device + ": Stopping the car-interface")
-            cmd = "docker -H %s.local stop car-interface" % device
+            cmd = "docker -H %s.local kill car-interface" % device
             subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
         else:
             print(device + ": Stopping the light-sensor")
-            cmd = "docker -H %s.local stop dt-light-sensor" % device
+            cmd = "docker -H %s.local kill dt-light-sensor" % device
             subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
-        time.sleep(5)
+        time.sleep(2)
         print(device + ": Stopping the acquisition-bridge")
-        cmd = "docker -H %s.local stop acquisition-bridge" % device
+        cmd = "docker -H %s.local kill acquisition-bridge" % device
         subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
-        time.sleep(5)
+        time.sleep(2)
         print(device + ": Restarting the duckiebot-interface")
         cmd = "docker -H %s.local restart duckiebot-interface" % device
         subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
-        time.sleep(5)
+        time.sleep(2)
         if "bot" in device:
             print(device + ": Restarting the car-interface")
             cmd = "docker -H %s.local start car-interface" % device
