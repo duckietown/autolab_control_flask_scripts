@@ -75,5 +75,27 @@ RUN touch /etc/avahi/avahi-daemon.conf \
   && sed -i 's/#enable-dbus=yes/enable-dbus=no/g' /etc/avahi/avahi-daemon.conf \
   && sed -i 's/#disable-publishing=no/disable-publishing=yes/g' /etc/avahi/avahi-daemon.conf
 
+# TEMPORARY: copy device-list
+COPY assets/device_list.txt /static/device_list.txt
+
+# copy docker binary
+COPY assets/docker/${ARCH}/docker /bin/docker
+
+# setup duckietown-shell
+# TODO: switch back to daffy once merged
+RUN dts --set-version daffy-aido-ttic exit
+
+# install ipfs
+ARG IPFS_VERSION=0.4.22
+ARG IPFS_URL="https://dist.ipfs.io/go-ipfs/v${IPFS_VERSION}/go-ipfs_v${IPFS_VERSION}_linux-${ARCH}.tar.gz"
+RUN \
+  cd /tmp \
+  && wget -O ./go-ipfs.tar.gz ${IPFS_URL} \
+  && tar xvfz ./go-ipfs.tar.gz \
+  && cd go-ipfs \
+  && ./install.sh \
+  && cd /tmp \
+  && rm -rf ./go-ipfs.tar.gz go-ipfs
+
 # maintainer
 LABEL maintainer="Andrea F. Daniele (afdaniele@ttic.edu)"

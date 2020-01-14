@@ -2,26 +2,47 @@ import subprocess
 # import rosbag
 import docker
 import time
+from docker import DockerClient
+
 
 name = "localization-graphoptimizer"
 
 
-def run_localization(input_bag_path, output_dir, mount_computer_side, mount_container_side="/data"):
-    cmd = "docker-compose -f processor_compose.yaml run --rm -v %s:%s -e  ATMSGS_BAG=%s/%s.bag -e OUTPUT_DIR=%s --name %s localization" % (
-        mount_computer_side, mount_container_side, mount_container_side, input_bag_path, output_dir, name)
-    print(cmd)
-    try:
-        res = subprocess.Popen(cmd, shell=True)
-        print(res)
-        time.sleep(5)
-        return ("Success")
-    except subprocess.CalledProcessError as e:
-        return ("Error: %s" % e)
-    pass
+def run_localization(ros_master_ip, input_bag_path, output_dir, mount_computer_side, mount_container_side="/data"):
+    docker = DockerClient()
+    # try to remove another existing postprocessor container
+    try: docker.containers.get(name).remove(force=True)
+    except: pass
+    # define environment
+    env = {
+        "ROS_MASTER_IP": ros_master_ip,
+        "ROS_MASTER": ros_master_ip,
+        "ATMSGS_BAG": f"{mount_container_side}/logs_processed/{input_bag_path}.bag",
+        "OUTPUT_DIR": output_dir
+    }
+    # mount workspace
+    volumes = {
+        mount_computer_side : {
+            'bind': mount_container_side,
+            'mode': 'rw'
+        }
+    }
+    # run graph optimizer
+    docker.containers.run(
+        name=name,
+        image="duckietown/cslam-graphoptimizer:daffy-amd64",
+        volumes=volumes,
+        environment=env,
+        remove=True,
+        detach=True
+    )
+    return ("Success")
 
 
-def check_localization(active_bots, passive_bots, origin_path, destination_path):
+def check_localization(active_bots, passive_bots, mount_computer_side):
+    destination_path = f"{mount_computer_side}/trajectories"
     client = docker.from_env()
+    # TODO: change this to client.containers.get(<XYZ>).status
     container_list = client.containers.list()
     for container in container_list:
         if container.name == name:
@@ -35,10 +56,10 @@ def check_localization(active_bots, passive_bots, origin_path, destination_path)
         subprocess.check_output(cmd, shell=True)
 
         for i in range(len(passive_bots)):
-            cmd = "mv %s/%s.yaml %s/passive%s.yaml" % (origin_path,passive_bots[i],destination_path,i+1)
+            cmd = "mv %s/%s.yaml %s/passive%s.yaml" % (mount_computer_side, passive_bots[i], destination_path, i+1)
             subprocess.check_output(cmd, shell=True)
         for i in range(len(active_bots)):
-            cmd = "mv %s/%s.yaml %s/active%s.yaml" % (origin_path,active_bots[i],destination_path,i+1)
+            cmd = "mv %s/%s.yaml %s/active%s.yaml" % (mount_computer_side, active_bots[i], destination_path, i+1)
             subprocess.check_output(cmd, shell=True)
         return("Success")
     except subprocess.CalledProcessError as e:

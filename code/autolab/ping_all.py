@@ -9,7 +9,7 @@ from .constants import STATIC_DIR
 
 
 def ping_device(device):
-    cmd = f'ping -c 3 -W 3 -i 0.2 {device}.local'
+    cmd = f'ping -c 3 -W 5 -i 0.2 {device}.local'
     try:
         out = subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
         stats = out.decode('utf-8').split('\n')

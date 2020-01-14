@@ -1,7 +1,8 @@
+import os
 import subprocess
 # import rosbag
 import time
-import docker
+from docker import from_env
 
 
 # def merge_bags(bags_name, output_bag_path):
@@ -29,54 +30,55 @@ def split_bags(input_bag_name, mount_computer_side, device_list):
         cmd = "rosbag filter %s %s \" '%s' in topic \" " % (
             container_side_input, new_bag_name, device)
         try:
-            out = subprocess.check_output(
-                cmd, shell=True, stderr=subprocess.STDOUT)
+            out = subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as e:
             print("Error splitting for %s : %s" % (device, e))
             return False
     return True
 
 
-def start_bag_processing(input_bag_name, output_bag_name, mount_computer_side, device_list, mount_container_side="/data"):
-    client = docker.from_env()
-    bags_name = []
-    container_side_input = "/%s/%s" % (mount_container_side, input_bag_name)
-
+def start_bag_processing(ros_master_ip, input_bag_name, output_bag_name, mount_computer_side, device_list, mount_container_side="/data"):
+    # create output dir
+    cmd = f"mkdir -p {mount_computer_side}/logs_processed"
+    subprocess.check_output(cmd, shell=True)
+    # open docker client
+    docker = from_env()
+    # define path to input (inside the container)
+    container_side_input = os.path.join(mount_container_side, 'logs_raw', input_bag_name)
+    # split bag
     if not split_bags(input_bag_name, mount_computer_side, device_list):
         print("Could not split the bags!!")
-    processed_bag_name = "%s.bag" % (output_bag_name)
-    output_container = "/%s/%s" % (
-        mount_container_side, processed_bag_name)
-    output_computer = "%s/%s" % (mount_computer_side, processed_bag_name)
-    bags_name.append(output_computer)
-
-    env = []
-    env.append("INPUT_BAG_PATH=%s" % container_side_input)
-    env.append("OUTPUT_BAG_PATH=%s" % output_container)
-    env.append("ROS_MASTER_URI=http://172.31.168.112:11311")
-    volume = {mount_computer_side: {
-        'bind': mount_container_side, 'mode': 'rw'}}
+    # define path to output (inside the container)
+    container_side_output = os.path.join(mount_container_side, 'logs_processed', output_bag_name)
+    # define environment
+    env = {
+        "INPUT_BAG_PATH": container_side_input,
+        "OUTPUT_BAG_PATH": f"{container_side_output}.bag",
+        "ROS_MASTER_URI": f"http://{ros_master_ip}:11311"
+    }
+    # attach workspace
+    volumes = {
+        mount_computer_side: {
+            'bind': mount_container_side,
+            'mode': 'rw'
+        }
+    }
+    # try to remove another existing postprocessor container
+    try: docker.containers.get(name).remove(force=True)
+    except: pass
+    # spin a new post-processor
     try:
-        client.containers.prune()
-        container = client.containers.run(
-            image="duckietown/post-processor:daffy-amd64", detach=True, environment=env, volumes=volume, name=name)
-        print("Success: ")
-        # print(container)
-        # print(container.status)
-        # logs = None
-        # try:
-        #     while container.status == "running" or container.status == "created":
-        #         logs = container.logs()
-        #         time.sleep(0.1)
-        # except:
-        #     pass
-        # print logs
+        container = docker.containers.run(
+            image="duckietown/post-processor:daffy-amd64",
+            detach=True,
+            environment=env,
+            volumes=volumes,
+            name=name,
+        )
         return("Success")
-
-    except subprocess.CalledProcessError as e:
+    except Exception as e:
         return ("Error: %s" % e)
 
-    print("finished with all apriltags")
 
     # for autobot in autobots:
     #     print("processing %s" % autobot)
@@ -100,8 +102,8 @@ def start_bag_processing(input_bag_name, output_bag_name, mount_computer_side, d
     #         'bind': mount_container_side, 'mode': 'rw'}}
     #     name = "odometryprocessor%s" % autobot
     #     try:
-    #         client.containers.prune()
-    #         container = client.containers.run(
+    #         docker.containers.prune()
+    #         container = docker.containers.run(
     #             image="duckietown/wheel-odometry-processor:master19-amd64", auto_remove=True, detach=True, environment=env, volumes=volume, name=name)
     #         print("Success: ")
     #         print(container.status)
@@ -117,24 +119,19 @@ def start_bag_processing(input_bag_name, output_bag_name, mount_computer_side, d
 
 
 def check_bag_processing(output_bag_name, mount_computer_origin, mount_computer_destination):
-    client = docker.from_env()
-    container_list = client.containers.list()
+    docker = from_env()
+    container_list = docker.containers.list()
+    # TODO: change this into docker.containers.get(<XYZ>).status == ??
     for container in container_list:
         if container.name == name:
             status = container.status
             if status == "running" or status == "created":
                 return("Running")
             if status == "exited":
-                return(move_file(output_bag_name, mount_computer_origin, mount_computer_destination))
-    return(move_file(output_bag_name, mount_computer_origin, mount_computer_destination))
-
-
-def move_file(name, origin, destination):
-    try:
-        cmd = "mkdir -p %s; mv %s/%s.bag %s" % (
-            destination, origin, name, destination)
-        subprocess.check_output(cmd, shell=True, executable="/bin/bash")
-        return "Success"
-
-    except subprocess.CalledProcessError:
-        return "Error"
+                print(f"move_file({output_bag_name}, {mount_computer_origin}, {mount_computer_destination})")
+                # try to cleanup
+                try: docker.containers.get(name).remove(force=True)
+                except: pass
+                # stop waiting
+                break
+    return "Success"

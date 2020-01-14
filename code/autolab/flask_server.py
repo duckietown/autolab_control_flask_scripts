@@ -22,6 +22,10 @@ from .copy_autolab_roster import copy_roster_with_list
 from .get_trajectory import request_yaml
 from .submission_map import get_map, copy_map
 
+# TODO: remove
+import sys
+# TODO: remove
+
 app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -121,19 +125,21 @@ def space_checker():
 @app.route('/start_logging', methods=['POST'])
 @cross_origin()
 def logging_starter():
-    computer = request.get_json()["computer"]
-    filename = request.get_json()["filename"]
+    # computer = request.get_json()["computer"]
     device_list = request.get_json()["device_list"]
+    filename = request.get_json()["filename"]
     mount_folder = request.get_json()["mount_folder"]
-    outcome = start_logging(computer, filename, device_list, mount_folder)
+    # outcome = start_logging(computer, filename, device_list, mount_folder)
+    outcome = start_logging(filename, device_list, mount_folder)
     return jsonify({'outcome': outcome})
 
 # API call to stop logging after the submission terminated
 @app.route('/stop_logging', methods=['POST'])
 @cross_origin()
 def logging_stopper():
-    computer = request.get_json()["computer"]
-    outcome = stop_logging(computer)
+    # computer = request.get_json()["computer"]
+    # outcome = stop_logging(computer)
+    outcome = stop_logging()
     return jsonify({'outcome': outcome})
 
 # API call to start the apriltag posprocessing from the gathered Rosbag/images
@@ -145,8 +151,9 @@ def apriltag_processor():
     mount_computer_side = request.get_json()["mount_computer_side"]
     mount_container_side = request.get_json()["mount_container_side"]
     device_list = request.get_json()["device_list"]
+    ros_master_ip = request.get_json()["ros_master_ip"]
     outcome = start_bag_processing(
-        input_bag_name, output_bag_name, mount_computer_side, device_list, mount_container_side)
+        ros_master_ip, input_bag_name, output_bag_name, mount_computer_side, device_list, mount_container_side)
     return jsonify({'outcome': outcome})
 
 # API call to check the apriltag posprocessing from the gathered Rosbag/images
@@ -174,12 +181,13 @@ def docker_maintainer():
 @app.route('/process_localization', methods=['POST'])
 @cross_origin()
 def process_localization():
+    ros_master_ip = request.get_json()["ros_master_ip"]
     input_bag_name = request.get_json()["input_bag_name"]
     output_dir = request.get_json()["output_dir"]
     mount_computer_side = request.get_json()["mount_computer_side"]
     mount_container_side = request.get_json()["mount_container_side"]
     outcome = run_localization(
-        input_bag_name, output_dir, mount_computer_side, mount_container_side)
+        ros_master_ip, input_bag_name, output_dir, mount_computer_side, mount_container_side)
     return jsonify({'outcome': outcome})
 
 # API call to check localization progress
@@ -188,10 +196,8 @@ def process_localization():
 def localization_checker():
     active_bot = request.get_json()["active_bot"]
     passive_bots = request.get_json()["passive_bots"]
-    origin_path = request.get_json()["origin_path"]
-    destination_path = request.get_json()["destination_path"]
-    outcome = check_localization(
-        active_bot, passive_bots, origin_path, destination_path)
+    mount_computer_side = request.get_json()["mount_computer_side"]
+    outcome = check_localization(active_bot, passive_bots, mount_computer_side)
     return jsonify({'outcome': outcome})
 
 # API call to stop demos on the duckiebots (passive bots)

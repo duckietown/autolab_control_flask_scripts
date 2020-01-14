@@ -5,7 +5,8 @@ import time
 
 from .aido_utils import get_device_list, show_status
 
-demo_name = ""
+demo_name = "indefinite_navigation"
+demo_image = "duckietown/rpi-duckiebot-base:master19"
 
 def start_device(device):
     global demo_name

@@ -1,5 +1,7 @@
 import os
+import io
 import time
+import tarfile
 import subprocess
 from docker import DockerClient
 from docker.errors import NotFound
@@ -7,47 +9,54 @@ from docker.errors import NotFound
 def get_map(image, name, step):
     docker = DockerClient()
     container_name = 'map_container'
-    map_filepath = os.path.join(os.getcwd(), 'static', 'map.svg')
-    
+    map_filepath = os.path.join(os.getcwd(), 'autolab', 'static')
+    container_path = f"/project/robotarium_scenario_maker/compiled/{name}/{step}/drawing.svg"
+
     try:
+        # create directory for map
         cmd = f"mkdir -p {os.path.dirname(map_filepath)}"
         subprocess.check_call(cmd, shell=True, executable="/bin/bash")
 
+        # pull image
         docker.images.pull(image)
-        # cmd = f"docker pull {image}"
-        # subprocess.check_call(cmd, shell=True, executable="/bin/bash")
 
+        # (optional) try to remove a pre-existing container
         try:
-            container = docker.containers.get(container_name)
-            container.remove(force=True)
+            docker.containers.get(container_name).remove(force=True)
         except NotFound:
             pass
-        # cmd = "docker rm -f map_container || exit 0"
-        # subprocess.check_call(cmd, shell=True, executable="/bin/bash")
 
-        container = docker.containers.run(image, name=container_name, detach=True)
-        # cmd = f"docker run --name map_container -i --rm {image}"
-        # subprocess.Popen(cmd, shell=True, executable="/bin/bash")
-
+        # run the container (wait for it to be ready)
+        container = docker.containers.run(image, name=container_name, detach=True, remove=True)
         time.sleep(2)
 
-        container_path = f"/project/robotarium_scenario_maker/compiled/{name}/{step}/drawing.svg"
+        # get tar of image
         bits, stat = container.get_archive(container_path)
-        with open(map_filepath, 'wb') as fout:
-            for chunk in bits:
-                fout.write(chunk)
-        # cmd = f"docker cp map_container:{container_path} {map_filepath}"
-        # subprocess.check_call(cmd, shell=True, executable="/bin/bash")
 
-        container.remove(force=True)
-        # cmd = "docker rm -f map_container"
-        # subprocess.check_call(cmd, shell=True, executable="/bin/bash")
+        # write bytes to buffer
+        b = io.BytesIO()
+        for c in bits:
+            b.write(c)
+        b.seek(0)
 
-        return '/' + os.path.relpath(map_filepath)
+        # read the buffer as tar
+        t = tarfile.open(fileobj=b, mode='r')
+
+        # extract map
+        t.extract('drawing.svg', path=map_filepath)
+        # ---
+        return '/static/drawing.svg'
 
     except Exception as e:
-        print(e)
-        return "Error"
+        print('Error: ', str(e))
+    finally:
+        try:
+            docker.containers.get(container_name).stop()
+        except:
+            pass
+    # ---
+    return "Error"
+
 
 
 def copy_map(mount, map_location, path):

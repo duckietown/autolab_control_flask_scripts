@@ -2,3 +2,9 @@
 iputils-ping
 # avahi alone is not enough to resolve .local hostnames, libnss-mdns is also needed
 libnss-mdns
+git
+curl
+ca-certificates
+#
+# `scp` is needed by dts/duckiebot/evaluate:get_calibration_files()
+openssh-client

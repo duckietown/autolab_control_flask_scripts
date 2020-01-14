@@ -1,0 +1,22 @@
+version: "3.0"
+
+services:
+  flask:
+    image: duckietown/autolab_control_flask_scripts:daffy-amd64
+    container_name: flask
+    networks:
+      - challenges_network
+    ports:
+      - 5050:5050/tcp
+    volumes:
+      - ./code/autolab:/code/dt-autolab-api/autolab
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /run/avahi-daemon/socket:/run/avahi-daemon/socket
+    external_links:
+      - challenges_server
+      - challenges_registry
+
+networks:
+  challenges_network:
+    external:
+      name: challenges_network

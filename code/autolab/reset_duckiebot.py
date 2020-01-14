@@ -8,57 +8,44 @@ from docker.errors import NotFound
 from .aido_utils import get_device_list, show_status
 
 def start_device(device):
+    # TODO: right now this process takes forever, we should implement everything using `dt_exec` which speeds up the stop (does not escalate to kill)
     docker = DockerClient(f'{device}.local:2375')
 
     try:
         if "bot" in device:
             print(device+ ": Stopping the car-interface")
-            docker.containers.get('car-interface').stop()
-            # cmd = "docker -H %s.local stop car-interface" % device
-            # subprocess.check_call(cmd, shell=True, stderr=subprocess.STDOUT)
+            if docker.containers.get('car-interface').status == 'running':
+                docker.containers.get('car-interface').kill()
         else:
             print(device+ ": Stopping the light-sensor")
             try:
-                docker.containers.get('dt-light-sensor').stop()
+                docker.containers.get('dt-light-sensor').kill()
             except NotFound:
                 pass
-            # cmd = "docker -H %s.local stop dt-light-sensor" % device
-            # subprocess.check_call(cmd, shell=True, stderr=subprocess.STDOUT)
-        # time.sleep(5)
 
         print(device+ ": Stopping the acquisition-bridge")
-        docker.containers.get('acquisition-bridge').stop()
-        # cmd = "docker -H %s.local stop acquisition-bridge" % device
-        # subprocess.check_call(cmd, shell=True, stderr=subprocess.STDOUT)
-        # time.sleep(5)
+        if docker.containers.get('acquisition-bridge').status == 'running':
+            docker.containers.get('acquisition-bridge').kill()
 
-        print(device+ ": Restarting the duckiebot-interface")
-        docker.containers.get('duckiebot-interface').restart()
-        # cmd = "docker -H %s.local restart duckiebot-interface" % device
-        # subprocess.check_call(cmd, shell=True, stderr=subprocess.STDOUT)
-        # time.sleep(5)
+        print(device+ ": Stopping the duckiebot-interface")
+        if docker.containers.get('duckiebot-interface').status == 'running':
+            docker.containers.get('duckiebot-interface').kill()
+
+        print(device+ ": Starting the duckiebot-interface")
+        docker.containers.get('duckiebot-interface').start()
 
         if "bot" in device:
-            print(device+ ": Restarting the car-interface")
+            print(device+ ": Starting the car-interface")
             docker.containers.get('car-interface').start()
-            # cmd = "docker -H %s.local start car-interface" % device
-            # subprocess.check_call(cmd, shell=True, stderr=subprocess.STDOUT)
         else:
-            print(device+ ": Restarting the light-sensor")
+            print(device+ ": Starting the light-sensor")
             try:
                 docker.containers.get('dt-light-sensor').start()
             except NotFound:
                 pass
-            # cmd = "docker -H %s.local start dt-light-sensor" % device
-            # subprocess.check_call(cmd, shell=True, stderr=subprocess.STDOUT)
-        # time.sleep(5)
 
-        print(device+ ": Restarting the acquisition-bridge")
+        print(device+ ": Starting the acquisition-bridge")
         docker.containers.get('acquisition-bridge').start()
-        # cmd = "docker -H %s.local start acquisition-bridge" % device
-        # subprocess.check_call(cmd, shell=True, stderr=subprocess.STDOUT)
-
-        time.sleep(10)
 
         return "Duckiebot reset"
 
@@ -72,9 +59,20 @@ def start_all_devices(device_list):
     results = pool.map(start_device, device_list)
     pool.close()
     pool.join()
+
+    # TODO: what is this for? Maybe wait for duckiebot-interface to be ready to get the E-Stop signal?
+    time.sleep(10)
+    # TODO: what is this for?
+
     show_status(device_list, results)
     return results
 
 def reset_duckiebot_with_list(device_list):
+
+    # TODO: remove
+    # return device_list, ["Duckiebot reset"] * len(device_list)
+    # TODO: remove
+
+
     outcome = start_all_devices(device_list)
     return device_list, outcome
