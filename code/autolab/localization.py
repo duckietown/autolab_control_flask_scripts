@@ -10,9 +10,11 @@ name = "localization-graphoptimizer"
 
 def run_localization(ros_master_ip, input_bag_path, output_dir, mount_computer_side, mount_container_side="/data"):
     docker = DockerClient()
-    # try to remove another existing postprocessor container
-    try: docker.containers.get(name).remove(force=True)
-    except: pass
+    # try to remove another existing graph optimizer processor container
+    try:
+        docker.containers.get(name).remove(force=True)
+    except:
+        pass
     # define environment
     env = {
         "ROS_MASTER_IP": ros_master_ip,
@@ -22,7 +24,7 @@ def run_localization(ros_master_ip, input_bag_path, output_dir, mount_computer_s
     }
     # mount workspace
     volumes = {
-        mount_computer_side : {
+        mount_computer_side: {
             'bind': mount_container_side,
             'mode': 'rw'
         }
@@ -56,10 +58,12 @@ def check_localization(active_bots, passive_bots, mount_computer_side):
         subprocess.check_output(cmd, shell=True)
 
         for i in range(len(passive_bots)):
-            cmd = "mv %s/%s.yaml %s/passive%s.yaml" % (mount_computer_side, passive_bots[i], destination_path, i+1)
+            cmd = "mv %s/%s.yaml %s/passive%s.yaml" % (
+                mount_computer_side, passive_bots[i], destination_path, i+1)
             subprocess.check_output(cmd, shell=True)
         for i in range(len(active_bots)):
-            cmd = "mv %s/%s.yaml %s/active%s.yaml" % (mount_computer_side, active_bots[i], destination_path, i+1)
+            cmd = "mv %s/%s.yaml %s/active%s.yaml" % (
+                mount_computer_side, active_bots[i], destination_path, i+1)
             subprocess.check_output(cmd, shell=True)
         return("Success")
     except subprocess.CalledProcessError as e:
