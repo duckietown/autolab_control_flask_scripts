@@ -1,31 +1,64 @@
 import subprocess
 import time
+from docker import from_env
+import os
 
 
-# def start_logging(computer, filename, device_list, mount_folder):
 def start_logging(filename, device_list, mount_folder):
-    # TODO: implement this using docker API
-    cmd = "docker rm -f bag_recorder || echo not bag_recorder before;  mkdir -p %s; docker run --name bag_recorder --rm -v %s:/data --net=host -dit duckietown/dt-ros-commons:master19-amd64 /bin/bash -c 'rosbag record -O /data/%s __name:=bag_recorder_node" % (
-         mount_folder, mount_folder, filename)
+    docker = from_env()
+    name = "bag_recorder"
+
+    # try to remove another finish bag_recorder container
+    try:
+        docker.containers.get(name).remove(force=True)
+    except:
+        pass
+
+    # Create the log folder
+    os.mkdir(mount_folder)
+
+    # attach workspace
+    volumes = {
+        "data": {
+            'bind': mount_folder,
+            'mode': 'rw'
+        }
+    }
+
+    # The logging command for the container
+    cmd = "/bin/bash -c 'rosbag record -O /data/%s __name:=bag_recorder_node" % filename
     for device in device_list:
         cmd += " /"+device+"/imageSparse/compressed /"+device+"/camera_node/camera_info"
         if "bot" in device:
             cmd += " /"+device+"/wheels_driver_node/wheels_cmd_decalibrated"
     cmd += "'"
+
+    # Launching the container
     try:
-        subprocess.check_output(cmd, shell=True)
-        return "Success"
-    except subprocess.CalledProcessError:
-        return "Error"
+        container = docker.containers.run(
+            command=cmd
+            image="duckietown/dt-ros-commons:master19-amd64",
+            detach=True,
+            volumes=volumes,
+            name=name,
+            network_mode="host")
+        return("Success")
+    except Exception as e:
+        return ("Error: %s" % e)
 
 
-# def stop_logging(computer):
 def stop_logging():
     # TODO: implement this in `dt-ros-commons` with `dt_exec` and graceful stop using `docker stop`
-    cmd = "docker exec bag_recorder /bin/bash -c 'source /opt/ros/kinetic/setup.bash; rosnode kill bag_recorder_node'"
+    cmd = "/bin/bash -c 'rosnode kill bag_recorder_node'"
 
+    docker = from_env()
+    name = "bag_recorder"
+
+    # try to remove another finish bag_recorder container
     try:
-        subprocess.check_output(cmd, shell=True)
-        return "Success"
-    except subprocess.CalledProcessError:
+        container = docker.containers.get(name)
+        container.exec_run(cmd)
+        container.remove(force=True)
+    except:
+        print("Could not stop the logging")
         return "Error"
