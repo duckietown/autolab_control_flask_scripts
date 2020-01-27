@@ -36,7 +36,7 @@ def start_logging(filename, device_list, mount_folder):
     # Launching the container
     try:
         container = docker.containers.run(
-            command=cmd
+            command=cmd,
             image="duckietown/dt-ros-commons:master19-amd64",
             detach=True,
             volumes=volumes,
