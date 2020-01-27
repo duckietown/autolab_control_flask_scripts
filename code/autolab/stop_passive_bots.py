@@ -1,7 +1,8 @@
 import subprocess
 import multiprocessing
 from typing import List
-
+from docker import DockerClient
+from docker.errors import NotFound, APIError
 from .aido_utils import get_device_list, show_status
 
 demo_name = ""
@@ -9,20 +10,21 @@ demo_name = ""
 
 def stop_device(device):
     global demo_name
-    try:
-        cmd = 'docker -H %s.local exec -it demo_%s\
-                         /bin/bash environment.sh rostopic pub -1 /%s/joy_mapper_node/joystick_override duckietown_msgs/BoolStamped\
-                         "{header: {seq: 0, stamp: {secs: 0, nsecs: 0}, frame_id: \'\'}, data: true}"' % (device, demo_name, device)
-        subprocess.Popen(cmd, shell=True, executable="/bin/bash")
-        print(device + ": Engaged joystick override")
+    docker = DockerClient(f'{device}.local:2375')
 
-        print(device + ": Stopping the demo: "+demo_name)
-        cmd = "docker -H %s.local stop demo_%s" % (device, demo_name)
-        subprocess.Popen(cmd, shell=True, executable="/bin/bash")
+    try:
+        demo_container = docker.containers().get("demo_%s" % demo_name)
+        cmd = '/bin/bash environment.sh rostopic pub -1 /%s/joy_mapper_node/joystick_override duckietown_msgs/BoolStamped\
+                         "{header: {seq: 0, stamp: {secs: 0, nsecs: 0}, frame_id: \'\'}, data: true}"' % device
+        demo_container.exec_run(cmd)
+        demo_container.exec_run(cmd)
+
+        demo_container.stop(timeout=2)
+
         return "Success"
 
-    except subprocess.CalledProcessError:
-        return "Error"
+    except docker.errors.APIError as e:
+        return "Error : %s" % str(e)
 
 
 def stop_all_devices(device_list):
