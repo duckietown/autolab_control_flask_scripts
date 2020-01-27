@@ -4,8 +4,8 @@ from typing import List
 import time
 from docker import DockerClient
 from .aido_utils import get_device_list, show_status
-from utils.docker_utils import bind_duckiebot_data_dir, default_env, remove_if_running, pull_if_not_exist
-from utils.networking_utils import get_duckiebot_ip
+from .docker_utils import bind_duckiebot_data_dir, default_env, remove_if_running, pull_if_not_exist
+from .networking_utils import get_duckiebot_ip
 
 demo_name = "indefinite_navigation"
 
@@ -61,7 +61,6 @@ def start_device(device):
                     demo_container.reload()
 
                 cmd = '/bin/bash environment.sh rostopic pub -1 /%s/joy_mapper_node/joystick_override duckietown_msgs/BoolStamped\
-
                     "{header: {seq: 0, stamp: {secs: 0, nsecs: 0}, frame_id: \'\'}, data: false}"' % device
 
                 demo_container.exec_run(cmd)
