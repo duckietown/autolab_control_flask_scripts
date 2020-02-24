@@ -6,5 +6,4 @@ git
 curl
 ca-certificates
 #
-# `scp` is needed by dts/duckiebot/evaluate:get_calibration_files()
-openssh-client
+docker

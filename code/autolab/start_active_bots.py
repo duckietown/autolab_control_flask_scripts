@@ -15,7 +15,8 @@ def start_device(device):
     try:
         print(device + ": Starting the submission: "+container)
         cmd = "dts duckiebot evaluate --duckiebot_name %s --image %s --duration %s" % (
-            device, container, duration)
+            device, container, duration
+        )
         subprocess.Popen(cmd, shell=True, executable="/bin/bash")
         return "Started evaluation"
 

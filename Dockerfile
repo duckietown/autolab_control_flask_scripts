@@ -55,7 +55,7 @@ ENV LAUNCHFILE "${REPO_PATH}/launch.sh"
 CMD ["bash", "-c", "${LAUNCHFILE}"]
 
 # store module name
-LABEL org.duckietown.label.module.type "${REPO_NAME}"
+LABEL org.duckietown.label.module.type="${REPO_NAME}"
 ENV DT_MODULE_TYPE "${REPO_NAME}"
 
 # store module metadata
@@ -63,10 +63,10 @@ ARG ARCH
 ARG MAJOR
 ARG BASE_TAG
 ARG BASE_IMAGE
-LABEL org.duckietown.label.architecture "${ARCH}"
-LABEL org.duckietown.label.code.location "${REPO_PATH}"
-LABEL org.duckietown.label.code.version.major "${MAJOR}"
-LABEL org.duckietown.label.base.image "${BASE_IMAGE}:${BASE_TAG}"
+LABEL org.duckietown.label.architecture="${ARCH}"
+LABEL org.duckietown.label.code.location="${REPO_PATH}"
+LABEL org.duckietown.label.code.version.major="${MAJOR}"
+LABEL org.duckietown.label.base.image="${BASE_IMAGE}:${BASE_TAG}"
 # <== Do not change this code
 # <==================================================
 
@@ -83,7 +83,7 @@ COPY assets/docker/${ARCH}/docker /bin/docker
 
 # setup duckietown-shell
 # TODO: switch back to daffy once merged
-RUN dts --set-version daffy-aido-ttic exit
+RUN dts --set-version daffy-aido4 exit
 
 # install ipfs
 ARG IPFS_VERSION=0.4.22
