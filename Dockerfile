@@ -83,7 +83,7 @@ COPY assets/docker/${ARCH}/docker /bin/docker
 
 # setup duckietown-shell
 # TODO: switch back to daffy once merged
-RUN dts --set-version daffy-aido-ttic exit
+RUN dts --set-version daffy-aido4 exit
 
 # install ipfs
 ARG IPFS_VERSION=0.4.22

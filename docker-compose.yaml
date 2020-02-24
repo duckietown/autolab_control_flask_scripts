@@ -11,6 +11,6 @@ services:
       - ./code/autolab:/code/dt-autolab-api/autolab
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp/aido_ws/:/tmp/aido_ws/
-      - ~/.ssh/:/external_ssh
+#      - ~/.ssh/:/external_ssh
       - ~/.ipfs:/root/.ipfs
       - ~/code/duckietown-ttic/TTIC-autolab-fleet-roster:/roster
