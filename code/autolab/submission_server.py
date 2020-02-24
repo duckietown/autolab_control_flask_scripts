@@ -5,6 +5,7 @@ import subprocess
 
 from .upload_s3 import upload_files
 
+
 def request_job(token, endpoint, url):
     features = {'disk_available_mb': 100000,
                 'disk_total_mb': 256000,
@@ -41,9 +42,11 @@ def request_job(token, endpoint, url):
     )
     return tmp.content.decode('utf-8')
 
+
 def upload_s3(aws_config, path, ignore_pattern):
     uploaded = upload_files(path, aws_config, ignore_pattern)
     return uploaded
+
 
 def create_hashes(path):
 
