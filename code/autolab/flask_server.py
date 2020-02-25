@@ -137,7 +137,6 @@ def logging_starter():
     device_list = request.get_json()["device_list"]
     filename = request.get_json()["filename"]
     mount_folder = request.get_json()["mount_folder"]
-    # outcome = start_logging(computer, filename, device_list, mount_folder)
     outcome = start_logging(filename, device_list, mount_folder)
     return jsonify({'outcome': outcome})
 

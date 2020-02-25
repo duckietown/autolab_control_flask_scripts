@@ -82,4 +82,4 @@ def upload_job(token, endpoint, url, job_id, result, ipfs_hashes, scores, upload
 
     tmp = requests.post(url+endpoint, data=json.dumps(data_post),
                         headers={'X-Messaging-Token': token})
-    return tmp.content
+    return tmp.content.decode('utf-8')

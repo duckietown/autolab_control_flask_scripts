@@ -82,5 +82,6 @@ def reset_duckiebot_with_list(device_list):
     # return device_list, ["Duckiebot reset"] * len(device_list)
     # TODO: remove
 
+
     outcome = start_all_devices(device_list)
     return device_list, outcome
