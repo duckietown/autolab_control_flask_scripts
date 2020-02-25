@@ -54,7 +54,6 @@ def start_logging(filename, device_list, mount_folder):
 
 def stop_logging():
     # TODO: implement this in `dt-ros-commons` with `dt_exec` and graceful stop using `docker stop`
-    cmd = "/bin/bash -c 'source /code/catkin_ws/devel/setup.bash; rosnode kill bag_recorder_node'"
 
     docker = from_env()
 
@@ -67,7 +66,7 @@ def stop_logging():
     # stop recorder and container (if running)
     if container.status == 'running':
         print("Stopping bag recorder")
-        cmd = "/bin/bash -c 'rosnode kill bag_recorder_node'"
+        cmd = "/bin/bash -c 'source /code/catkin_ws/devel/setup.bash; rosnode kill bag_recorder_node'"
         container.exec_run(cmd)
         container.stop()
     # remove container
