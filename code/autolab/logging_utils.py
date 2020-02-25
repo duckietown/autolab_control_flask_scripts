@@ -2,6 +2,7 @@ import subprocess
 import time
 from docker import from_env
 import os
+from .docker_utils import kill_if_running, blocking_start
 
 
 def start_logging(filename, device_list, mount_folder):
@@ -15,12 +16,13 @@ def start_logging(filename, device_list, mount_folder):
         pass
 
     # Create the log folder
-    os.mkdir(mount_folder)
+    print(mount_folder)
+    os.makedirs(mount_folder, exist_ok=True)
 
     # attach workspace
     volumes = {
-        "data": {
-            'bind': mount_folder,
+        mount_folder: {
+            'bind': "/data",
             'mode': 'rw'
         }
     }
@@ -32,24 +34,25 @@ def start_logging(filename, device_list, mount_folder):
         if "bot" in device:
             cmd += " /"+device+"/wheels_driver_node/wheels_cmd_decalibrated"
     cmd += "'"
-
+    # cmd = "/bin/bash -c 'while true; do echo hey; done'"
     # Launching the container
     try:
         container = docker.containers.run(
             command=cmd,
-            image="duckietown/dt-ros-commons:master19-amd64",
+            image="duckietown/dt-ros-commons:daffy-amd64",
             detach=True,
             volumes=volumes,
             name=name,
             network_mode="host")
         return("Success")
     except Exception as e:
-        return ("Error: %s" % e)
+        print(e)
+        return ("Error : %s" % str(e))
 
 
 def stop_logging():
     # TODO: implement this in `dt-ros-commons` with `dt_exec` and graceful stop using `docker stop`
-    cmd = "/bin/bash -c 'rosnode kill bag_recorder_node'"
+    cmd = "/bin/bash -c 'source /code/catkin_ws/devel/setup.bash; rosnode kill bag_recorder_node'"
 
     docker = from_env()
     name = "bag_recorder"
@@ -57,8 +60,16 @@ def stop_logging():
     # try to remove another finish bag_recorder container
     try:
         container = docker.containers.get(name)
-        container.exec_run(cmd)
-        container.remove(force=True)
-    except:
-        print("Could not stop the logging")
+        (exit_code, output) = container.exec_run(cmd, detach=False)
+        # print(output)
+        kill_if_running(docker, name)
+        return "Success"
+    except Exception as e:
+        print("Could not stop the logging : %s" % e)
         return "Error"
+
+
+# if __name__ == "__main__":
+#     start_logging("test", ["autobot02"], "/home/amaury")
+#     time.sleep(5)
+#     stop_logging()

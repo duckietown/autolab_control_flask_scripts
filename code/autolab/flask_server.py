@@ -239,7 +239,7 @@ def copy_roster():
     bot_list = request.get_json()["list"]
     mount = request.get_json()["mount"]
     roster_location = request.get_json()["roster_location"]
-    outcome = copy_roster_with_list(bot_list, mount, roster_location)
+    outcome = copy_roster_with_list(bot_list, mount)
     return jsonify({'outcome': outcome})
 
 
@@ -292,6 +292,7 @@ def s3_uploader():
     path = request.get_json()["path"]
     ignore_pattern = request.get_json()["ignore_pattern"]
     data = upload_s3(aws_config, path, ignore_pattern)
+    print(data)
     return jsonify({'data': data})
 
 

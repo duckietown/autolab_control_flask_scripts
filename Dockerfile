@@ -15,8 +15,8 @@ FROM duckietown/${BASE_IMAGE}:${BASE_TAG}
 ARG REPO_NAME
 RUN bash -c \
   'if [ "${REPO_NAME}" = "<REPO_NAME_HERE>" ]; then \
-    >&2 echo "ERROR: You need to change the value of REPO_NAME inside Dockerfile."; \
-    exit 1; \
+  >&2 echo "ERROR: You need to change the value of REPO_NAME inside Dockerfile."; \
+  exit 1; \
   fi'
 
 # define repository path
@@ -32,7 +32,7 @@ COPY ./dependencies-apt.txt "${REPO_PATH}/"
 # install apt dependencies
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
-    $(awk -F: '/^[^#]/ { print $1 }' dependencies-apt.txt | uniq) \
+  $(awk -F: '/^[^#]/ { print $1 }' dependencies-apt.txt | uniq) \
   && rm -rf /var/lib/apt/lists/*
 
 # copy dependencies (PIP3)

@@ -1,7 +1,8 @@
 import os
 import subprocess
-# import rosbag
+import time
 from docker import from_env
+from .docker_utils import remove_if_running
 
 # def merge_bags(bags_name, output_bag_path):
 #     output_bag = rosbag.Bag(output_bag_path, 'w')
@@ -20,57 +21,77 @@ from docker import from_env
 name = "postprocessor"
 
 
-def split_bags(input_bag_name, mount_computer_side, device_list):
-    container_side_input = "/%s/%s.bag" % (mount_computer_side, input_bag_name)
-    for device in device_list:
-        new_bag_name = "/%s/%s.bag" % (mount_computer_side, device)
-        cmd = "rosbag filter %s %s \" '%s' in topic \" " % (
-            container_side_input, new_bag_name, device)
-        try:
-            out = subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
-        except subprocess.CalledProcessError as e:
-            print("Error splitting for %s : %s" % (device, e))
-            return False
-    return True
+def split_bags(input_bag_name, device_list, mount_folder):
 
+    docker = from_env()
+    name = "bag_splitter"
 
-def cut_bag_beginning(input_bag_name, mount_computer_side, start_time):
-    container_side_input = "/%s/%s.bag" % (mount_computer_side, input_bag_name)
-    new_bag_name = "/%s/%s_cut.bag" % (mount_computer_side, input_bag_name)
-    cmd = "rosbag filter %s %s \" t.secs >= %f \" " % (
-        container_side_input, new_bag_name, start_time/1000.0 - 1.0)
+    # try to remove another finish bag_recorder container
     try:
-        out = subprocess.check_output(
-            cmd, shell=True, stderr=subprocess.STDOUT)
-    except subprocess.CalledProcessError as e:
-        print("Error cutting bag : %s" % e)
-        return False
-    
-    if(os.path.getsize(new_bag_name) > 10000):
-        os.remove(container_side_input)
-        os.rename(new_bag_name, container_side_input)
-    else:
-        print("cut bag was too small")
+        docker.containers.get(name).remove(force=True)
+    except:
+        pass
+
+    # Create the log folder
+    mount_folder += "/logs_raw"
+    print(mount_folder)
+    os.makedirs(mount_folder, exist_ok=True)
+
+    # attach workspace
+    volumes = {
+        mount_folder: {
+            'bind': "/data",
+            'mode': 'rw'
+        }
+    }
+
+    # The splitting command for the container
+    container_side_input = "/data/%s.bag" % input_bag_name
+    bigcmd = ["/bin/bash", "-c"]
+    bagcomd = ""
+
+    reindexCmd = "if [ -s %s.active ]; then rosbag reindex %s.active; mv %s.active %s; rm %s.orig.active; fi;" % (
+        container_side_input, container_side_input, container_side_input, container_side_input, container_side_input)
+    bagcomd += reindexCmd
+    for device in device_list:
+        new_bag_name = "/data/%s.bag" % device
+        cmd = "rosbag filter %s %s \" '%s' in topic \";" % (
+            container_side_input, new_bag_name, device)
+        bagcomd += cmd
+    bigcmd.append(bagcomd)
+
+    # bigcmd += "\""
+    # Launching the container
+    try:
+        container = docker.containers.run(
+            command=bigcmd,
+            image="duckietown/dt-ros-commons:daffy-amd64",
+            detach=False,
+            volumes=volumes,
+            name=name,
+            network_mode="host")
+    except Exception as e:
+        print(e)
+        return (False)
+
     return True
 
 
-def start_bag_processing(ros_master_ip, input_bag_name, output_bag_name, mount_computer_side, device_list, start_time, mount_container_side="/data"):
+def start_bag_processing(ros_master_ip, input_bag_name, output_bag_name, mount_computer_side, device_list, mount_container_side="/data"):
     # create output dir
     cmd = f"mkdir -p {mount_computer_side}/logs_processed"
     subprocess.check_output(cmd, shell=True)
     # open docker client
     docker = from_env()
     # define path to input (inside the container)
-    container_side_input = os.path.join(mount_container_side, 'logs_raw', input_bag_name)
+    container_side_input = os.path.join(
+        mount_container_side, 'logs_raw', input_bag_name)
     # split bag
-
-    if not cut_bag_beginning(input_bag_name, mount_computer_side, start_time):
-        print("Could not cut bag beginning")
-
-    if not split_bags(input_bag_name, mount_computer_side, device_list):
+    if not split_bags(input_bag_name, device_list, mount_computer_side):
         print("Could not split the bags!!")
     # define path to output (inside the container)
-    container_side_output = os.path.join(mount_container_side, 'logs_processed', output_bag_name)
+    container_side_output = os.path.join(
+        mount_container_side, 'logs_processed', output_bag_name)
     # define environment
     env = {
         "INPUT_BAG_PATH": container_side_input,
@@ -85,8 +106,10 @@ def start_bag_processing(ros_master_ip, input_bag_name, output_bag_name, mount_c
         }
     }
     # try to remove another existing postprocessor container
-    try: docker.containers.get(name).remove(force=True)
-    except: pass
+    try:
+        docker.containers.get(name).remove(force=True)
+    except:
+        pass
     # spin a new post-processor
     try:
         container = docker.containers.run(
@@ -99,7 +122,6 @@ def start_bag_processing(ros_master_ip, input_bag_name, output_bag_name, mount_c
         return("Success")
     except Exception as e:
         return ("Error: %s" % e)
-
 
     # for autobot in autobots:
     #     print("processing %s" % autobot)
@@ -149,10 +171,13 @@ def check_bag_processing(output_bag_name, mount_computer_origin, mount_computer_
             if status == "running" or status == "created":
                 return("Running")
             if status == "exited":
-                print(f"move_file({output_bag_name}, {mount_computer_origin}, {mount_computer_destination})")
+                print(
+                    f"move_file({output_bag_name}, {mount_computer_origin}, {mount_computer_destination})")
                 # try to cleanup
-                try: docker.containers.get(name).remove(force=True)
-                except: pass
+                try:
+                    docker.containers.get(name).remove(force=True)
+                except:
+                    pass
                 # stop waiting
                 break
     return "Success"
