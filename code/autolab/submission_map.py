@@ -6,6 +6,7 @@ import subprocess
 from docker import DockerClient
 from docker.errors import NotFound
 
+
 def get_map(image, name, step):
     docker = DockerClient()
     container_name = 'map_container'
@@ -27,7 +28,8 @@ def get_map(image, name, step):
             pass
 
         # run the container (wait for it to be ready)
-        container = docker.containers.run(image, name=container_name, detach=True, remove=True)
+        container = docker.containers.run(
+            image, name=container_name, detach=True, remove=True)
         time.sleep(2)
 
         # get tar of image
@@ -58,14 +60,17 @@ def get_map(image, name, step):
     return "Error"
 
 
-
 def copy_map(mount, map_location, path):
 
     try:
-        cmd = "cd %s; git pull" %(map_location)
+        cmd = "cd %s; git clone https://github.com/duckietown/duckietown-world.git || echo 'map exist already'" % map_location
         subprocess.check_output(cmd, shell=True, executable="/bin/bash")
 
-        cmd = "mkdir -p %s; cp %s/%s %s/map.yaml" %(mount, map_location, path, mount)
+        cmd = "cd %s/duckietown-world; git pull" % map_location
+        subprocess.check_output(cmd, shell=True, executable="/bin/bash")
+
+        cmd = "mkdir -p %s; cp %s/duckietown-world/%s %s/map.yaml" % (
+            mount, map_location, path, mount)
         subprocess.Popen(cmd, shell=True, executable="/bin/bash")
 
         return "Success"

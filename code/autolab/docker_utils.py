@@ -29,6 +29,14 @@ def stop_container(container):
         # dtslogger.warn("Container %s not found to stop! %s" % (container, e))
 
 
+def kill_container(container):
+    try:
+        container.kill()
+    except Exception as e:
+        pass
+        # dtslogger.warn("Container %s not found to stop! %s" % (container, e))
+
+
 def remove_container(container):
     try:
         container.remove()
@@ -57,6 +65,31 @@ def remove_if_running(client, container_name):
         remove_container(container)
     except Exception as e:
         pass
+        # dtslogger.warn("couldn't remove existing container: %s" % e)
+
+
+def kill_if_running(client, container_name):
+    try:
+        container = client.containers.get(container_name)
+        # dtslogger.info("%s already running - stopping it first.." %
+        #                container_name)
+        kill_container(container)
+
+    except Exception as e:
+        pass
+        # dtslogger.warn("couldn't remove existing container: %s" % e)
+
+
+def blocking_start(client, container_name):
+    try:
+        container = client.containers.get(container_name)
+        # dtslogger.info("%s already running - stopping it first.." %
+        #                container_name)
+        container.start()
+        return True
+
+    except Exception as e:
+        return False
         # dtslogger.warn("couldn't remove existing container: %s" % e)
 
 
