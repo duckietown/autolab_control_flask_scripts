@@ -19,8 +19,7 @@ def start_logging(filename, device_list, mount_folder):
         pass
 
     # Create the log folder
-    if not os.path.exists(mount_folder):
-        os.makedirs(mount_folder)
+    os.makedirs(mount_folder, exist_ok=True)
 
     # attach workspace
     volumes = {
