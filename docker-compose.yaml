@@ -10,7 +10,7 @@ services:
     volumes:
       - ./code/autolab:/code/dt-autolab-api/autolab
       - /var/run/docker.sock:/var/run/docker.sock
-      - /tmp/aido_ws/:/tmp/aido_ws/
+#      - /tmp/aido_ws/:/tmp/aido_ws/
 #      - ~/.ssh/:/external_ssh
       - ~/.ipfs:/root/.ipfs
       - /home/amaury/ETHZ-autolab-fleet-roster:/roster
