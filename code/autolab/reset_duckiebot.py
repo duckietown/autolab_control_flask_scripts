@@ -1,12 +1,9 @@
-import subprocess
-import multiprocessing
-from typing import List
 import time
+import multiprocessing
 from docker import DockerClient
-from docker.errors import NotFound
 
 from .docker_utils import kill_if_running, blocking_start
-from .aido_utils import get_device_list, show_status
+from .aido_utils import show_status
 
 
 def start_device(device):
@@ -42,7 +39,7 @@ def start_device(device):
                 print("Could not start car-interface")
                 return "Error"
             if not blocking_start(client=docker, container_name="files-api"):
-                print("Could not start car-interface")
+                print("Could not start files-api")
                 return "Error"
         # else:
         #     # print(device + ": Starting the light-sensor")

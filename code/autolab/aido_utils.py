@@ -1,4 +1,3 @@
-from typing import List
 debugging = True
 
 
@@ -15,8 +14,7 @@ def get_device_list(input_file):
 
         if len(device_list) == 0:
             msg = 'Could not find any device in %s' % input_file
-            print(msg)
-            raise CouldNotReadDeviceList(msg)
+            raise ValueError(msg)
         return device_list
 
     except IOError as e:
@@ -26,14 +24,15 @@ def get_device_list(input_file):
 
 def show_status(device_list, results):
     if debugging:
-        print('\t {:<4}{:<20}|{:<4}{:<20} '.format(
-            '=' * 4, '=' * 20, '=' * 4, '=' * 20))
-        print('\t|{:<4}{:<20}|{:<4}{:<20}|'.format('', 'Device', '', 'Status'))
-        print('\t|{:<4}{:<20}|{:<4}{:<20}|'.format(
-            '=' * 4, '=' * 20, '=' * 4, '=' * 20))
-
+        fmt_header = '\t {:<4}{:<20}|{:<4}{:<20} '
+        fmt_cell = '\t|{:<4}{:<20}|{:<4}{:<20}|'
+        fmt_separator = ['=' * 4, '=' * 20, '=' * 4, '=' * 20]
+        # print header
+        print(fmt_header.format(*fmt_separator))
+        print(fmt_cell.format('', 'Device', '', 'Status'))
+        print(fmt_cell.format(*fmt_separator))
+        # print one row per device
         for (res, device) in zip(results, device_list):
-            print('\t|{:<4}{:<20}|{:<4}{:<20}|'.format('', device, '', res))
-
-        print('\t {:<4}{:<20}|{:<4}{:<20} '.format(
-            '=' * 4, '=' * 20, '=' * 4, '=' * 20))
+            print(fmt_cell.format('', device, '', res))
+        # close table
+        print(fmt_header.format(*fmt_separator))
