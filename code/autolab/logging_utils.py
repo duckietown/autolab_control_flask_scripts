@@ -68,8 +68,8 @@ def stop_logging():
         print("Stopping bag recorder")
         cmd = "/bin/bash -c 'source /code/catkin_ws/devel/setup.bash; rosnode kill bag_recorder_node'"
         container.exec_run(cmd)
-        container.stop()
-    # remove container
-    print("Removing bag recorder container")
-    container.remove(force=True)
+        while container.status != "exited":
+            time.sleep(0.1)
+            container.reload()
+
     return "Success"
