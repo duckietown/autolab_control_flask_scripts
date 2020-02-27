@@ -78,17 +78,34 @@ def split_bags(input_bag_name, device_list, mount_folder):
 
 
 def start_bag_processing(ros_master_ip, input_bag_name, output_bag_name, mount_computer_side, device_list, mount_container_side="/data"):
-    # create output dir
     cmd = f"mkdir -p {mount_computer_side}/logs_processed"
     subprocess.check_output(cmd, shell=True)
+
+    if not split_bags(input_bag_name, device_list, mount_computer_side):
+        print("Could not split the bags!!")
+
+    for agent in device_list:
+        input_bag_name = "%s" % agent
+        container = start_bag_processing_one_agent(ros_master_ip, input_bag_name, output_bag_name,
+                                                   mount_computer_side, mount_container_side="/data")
+        if isinstance(container, str):
+            return container
+        else:
+            while container.status != "exited":
+                time.sleep(0.1)
+                container.reload()
+    return "Success"
+
+
+def start_bag_processing_one_agent(ros_master_ip, input_bag_name, output_bag_name, mount_computer_side, mount_container_side="/data"):
+    # create output dir
     # open docker client
     docker = from_env()
     # define path to input (inside the container)
     container_side_input = os.path.join(
         mount_container_side, 'logs_raw', input_bag_name)
     # split bag
-    if not split_bags(input_bag_name, device_list, mount_computer_side):
-        print("Could not split the bags!!")
+
     # define path to output (inside the container)
     container_side_output = os.path.join(
         mount_container_side, 'logs_processed', output_bag_name)
@@ -119,46 +136,9 @@ def start_bag_processing(ros_master_ip, input_bag_name, output_bag_name, mount_c
             volumes=volumes,
             name=name,
         )
-        return("Success")
+        return container
     except Exception as e:
         return ("Error: %s" % e)
-
-    # for autobot in autobots:
-    #     print("processing %s" % autobot)
-    #     processed_bag_name = "processed_%s.bag" % autobot
-    #     output_container = "%s/%s" % (
-    #         mount_container_side, processed_bag_name)
-    #     output_computer = "%s/%s" % (mount_computer_side, processed_bag_name)
-    #     bags_name.append(output_computer)
-    #     container_side_input = "%s/%s" % (mount_container_side, input_bag_name)
-
-    #     # cmd = "docker rm -f wheelodometryprocessor%s; docker-compose -f processor_compose.yaml run -v %s:%s -e ACQ_DEVICE_NAME=%s -e INPUT_BAG_PATH=%s -e OUTPUT_BAG_PATH=%s --rm --name wheelodometryprocessor%s odometry-processor" % (
-    #     #     autobot, mount_computer_side, mount_container_side, autobot, container_side_input, output_container, autobot)
-    #     # cmd = "docker rm -f apriltagprocessor%s || echo 'blabla'; docker run hello-world " % autobot
-
-    #     env = []
-    #     env.append("ACQ_DEVICE_NAME=%s" % autobot)
-    #     env.append("INPUT_BAG_PATH=%s" % container_side_input)
-    #     env.append("OUTPUT_BAG_PATH=%s" % output_container)
-    #     env.append("ROS_MASTER_URI=http://172.31.168.2:11311")
-    #     volume = {mount_computer_side: {
-    #         'bind': mount_container_side, 'mode': 'rw'}}
-    #     name = "odometryprocessor%s" % autobot
-    #     try:
-    #         docker.containers.prune()
-    #         container = docker.containers.run(
-    #             image="duckietown/wheel-odometry-processor:master19-amd64", auto_remove=True, detach=True, environment=env, volumes=volume, name=name)
-    #         print("Success: ")
-    #         print(container.status)
-    #         while container.status == "running" or container.status == "created":
-    #             try:
-    #                 container.reload()
-    #                 time.sleep(1)
-    #             except:
-    #                 break
-    #     except subprocess.CalledProcessError as e:
-    #         print("Error: %s" % e)
-    #         return ("Error: %s" % e)
 
 
 def check_bag_processing(output_bag_name, mount_computer_origin, mount_computer_destination):
