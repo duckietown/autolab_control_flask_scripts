@@ -35,8 +35,8 @@ def run_localization(ros_master_ip, input_bag_path, output_dir, mount_computer_s
         image="duckietown/cslam-graphoptimizer:daffy-amd64",
         volumes=volumes,
         environment=env,
-        remove=True,
-        detach=True
+        detach=True,
+        network_mode="host"
     )
     return ("Success")
 
