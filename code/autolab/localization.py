@@ -8,7 +8,7 @@ from docker import DockerClient
 name = "localization-graphoptimizer"
 
 
-def run_localization(ros_master_ip, input_bag_path, output_dir, mount_computer_side, mount_container_side="/data"):
+def run_localization(ros_master_ip, input_bag_path, output_dir, mount_computer_side, duckietown_world_fork, map_name, mount_container_side="/data"):
     docker = DockerClient()
     # try to remove another existing graph optimizer processor container
     try:
@@ -20,7 +20,9 @@ def run_localization(ros_master_ip, input_bag_path, output_dir, mount_computer_s
         "ROS_MASTER_IP": ros_master_ip,
         "ROS_MASTER": ros_master_ip,
         "ATMSGS_BAG": f"{mount_container_side}/logs_processed/{input_bag_path}.bag",
-        "OUTPUT_DIR": output_dir
+        "OUTPUT_DIR": output_dir,
+        "DUCKIETOWN_WORLD_FORK": duckietown_world_fork,
+        "MAP_NAME": map_name
     }
     # mount workspace
     volumes = {

@@ -205,8 +205,17 @@ def process_localization():
     output_dir = request.get_json()["output_dir"]
     mount_computer_side = request.get_json()["mount_computer_side"]
     mount_container_side = request.get_json()["mount_container_side"]
+    duckietown_world_fork = request.get_json()["duckietown_world_fork"]
+    map_name = request.get_json()["map_name"]
     outcome = run_localization(
-        ros_master_ip, input_bag_name, output_dir, mount_computer_side, mount_container_side)
+        ros_master_ip,
+        input_bag_name,
+        output_dir,
+        mount_computer_side,
+        duckietown_world_fork,
+        map_name,
+        mount_container_side
+    )
     return jsonify({'outcome': outcome})
 
 

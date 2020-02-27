@@ -90,7 +90,7 @@ ARG IPFS_VERSION=0.4.22
 ARG IPFS_URL="https://dist.ipfs.io/go-ipfs/v${IPFS_VERSION}/go-ipfs_v${IPFS_VERSION}_linux-${ARCH}.tar.gz"
 RUN \
   cd /tmp \
-  && wget -O ./go-ipfs.tar.gz ${IPFS_URL} \
+  && wget -q -O ./go-ipfs.tar.gz ${IPFS_URL} \
   && tar xvfz ./go-ipfs.tar.gz \
   && cd go-ipfs \
   && ./install.sh \
