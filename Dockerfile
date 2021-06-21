@@ -36,11 +36,11 @@ RUN apt-get update \
   $(awk -F: '/^[^#]/ { print $1 }' dependencies-apt.txt | uniq) \
   && rm -rf /var/lib/apt/lists/*
 
-# copy dependencies (PIP3)
+# copy dependencies (python3 -m pip)
 COPY ./dependencies-py3.txt "${REPO_PATH}/"
 
 # install python dependencies
-RUN pip3 install -r ${REPO_PATH}/dependencies-py3.txt
+RUN python3 -m pip install -r ${REPO_PATH}/dependencies-py3.txt
 
 # copy the source code
 COPY ./code/. "${REPO_PATH}/"
